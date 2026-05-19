@@ -4,11 +4,33 @@ struct CardLibraryView: View {
     @ObservedObject var store: WordStore
     @Environment(\.dismiss) private var dismiss
     @State private var editingCard: GermanWordData?
+    @State private var sortOrder = CardSortOrder.ascending
+
+    private var sortedCards: [GermanWordData] {
+        store.history.sorted { lhs, rhs in
+            let left = lhs.word.localizedStandardCompare(rhs.word)
+            switch sortOrder {
+            case .ascending:
+                return left == .orderedAscending
+            case .descending:
+                return left == .orderedDescending
+            }
+        }
+    }
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(store.history) { card in
+                Section {
+                    Picker("Sort", selection: $sortOrder) {
+                        ForEach(CardSortOrder.allCases) { order in
+                            Text(order.title).tag(order)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+
+                ForEach(sortedCards) { card in
                     Button {
                         editingCard = card
                     } label: {
@@ -23,7 +45,7 @@ struct CardLibraryView: View {
                         }
                     }
                 }
-                .onDelete(perform: store.delete)
+                .onDelete(perform: deleteSortedCards)
             }
             .overlay {
                 if store.history.isEmpty {
@@ -41,6 +63,28 @@ struct CardLibraryView: View {
             }
         }
     }
+
+    private func deleteSortedCards(at offsets: IndexSet) {
+        for index in offsets where sortedCards.indices.contains(index) {
+            store.delete(sortedCards[index])
+        }
+    }
+}
+
+private enum CardSortOrder: String, CaseIterable, Identifiable {
+    case ascending
+    case descending
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .ascending:
+            return "A-Z"
+        case .descending:
+            return "Z-A"
+        }
+    }
 }
 
 private struct CardLibraryRow: View {
@@ -49,7 +93,7 @@ private struct CardLibraryRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
-                Text([card.displayArticle, card.word].filter { !$0.isEmpty }.joined(separator: " "))
+                Text(card.word)
                     .font(.headline)
                     .foregroundStyle(AppTheme.primaryText)
                 Spacer()

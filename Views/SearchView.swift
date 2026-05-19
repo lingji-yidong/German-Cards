@@ -268,9 +268,12 @@ private struct CardDeckView: View {
                 ZStack {
                     if deck.count > 1, index + 1 < deck.count {
                         WordCardView(data: deck[index + 1])
-                            .scaleEffect(0.96)
-                            .opacity(0.46)
-                            .offset(y: 14)
+                            .scaleEffect(0.94)
+                            .opacity(0.18)
+                            .saturation(0.65)
+                            .blur(radius: 0.8)
+                            .offset(y: 12)
+                            .allowsHitTesting(false)
                     }
                     WordCardView(data: current)
                         .frame(maxWidth: 430)
