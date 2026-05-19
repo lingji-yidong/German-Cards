@@ -25,7 +25,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("LLM Provider") {
+                Section {
                     Picker("Provider", selection: provider) {
                         ForEach(LLMProvider.allCases) { provider in
                             Text(provider.rawValue).tag(provider)
@@ -43,17 +43,21 @@ struct SettingsView: View {
                     } label: {
                         Label(saved ? "Saved" : "Save Configuration", systemImage: saved ? "checkmark.circle.fill" : "square.and.arrow.down")
                     }
+                } header: {
+                    Text("LLM Provider")
                 } footer: {
                     Text("OpenAI-compatible 和 Custom 會呼叫 {Base URL}/chat/completions。Gemini 會呼叫 {Base URL}/models/{model}:generateContent。")
                 }
 
-                Section("Dictionary Reference") {
+                Section {
                     Label("Local reference first", systemImage: "books.vertical")
                     Text(ReferenceLexicon.sourceSummary)
                         .font(.footnote)
                     Text("後續可把 FreeDict TEI 或 Wiktionary dump 轉成 bundled JSON，查詞時先本地命中，再 fallback 到 LLM。")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                } header: {
+                    Text("Dictionary Reference")
                 }
             }
             .navigationTitle("Settings")
