@@ -152,7 +152,7 @@ private struct CardEditView: View {
             Form {
                 Section("Word") {
                     TextField("German", text: $word)
-                        .textInputAutocapitalization(.words)
+                        .germanCardsAutocapitalization(.words)
                     TextField("Meaning", text: $meaning, axis: .vertical)
                     TextField("English", text: $englishMeaning)
                     TextField("Part of speech", text: $partOfSpeech)

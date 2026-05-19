@@ -48,8 +48,8 @@ struct SearchView: View {
                 .foregroundStyle(.secondary)
             TextField("Generate a German word card", text: $query)
                 .focused($isSearchFocused)
-                .textInputAutocapitalization(.words)
-                .submitLabel(.search)
+                .germanCardsAutocapitalization(.words)
+                .germanCardsSearchSubmitLabel()
                 .onSubmit { Task { await search() } }
             if !query.isEmpty {
                 Button {

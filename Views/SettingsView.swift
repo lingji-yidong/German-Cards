@@ -80,12 +80,12 @@ struct SettingsView: View {
                         }
                     }
                     TextField("Base URL", text: $baseURL)
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.URL)
+                        .germanCardsAutocapitalization(.never)
+                        .germanCardsURLKeyboard()
                     TextField("Model", text: $model)
-                        .textInputAutocapitalization(.never)
+                        .germanCardsAutocapitalization(.never)
                     SecureField("API Key", text: $apiKey)
-                        .textInputAutocapitalization(.never)
+                        .germanCardsAutocapitalization(.never)
                     Button {
                         saved = true
                     } label: {
