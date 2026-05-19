@@ -9,10 +9,15 @@ struct SettingsView: View {
     @State private var saved = false
     @State private var isRenewing = false
     @State private var renewStatus: String?
+    @State private var showingForceRenewConfirmation = false
     @AppStorage("app_appearance") private var appearanceRaw = AppAppearance.system.rawValue
     @AppStorage("grammar_language") private var grammarLanguageRaw = GrammarLanguage.traditionalChinese.rawValue
 
     private let client = LLMWordClient()
+
+    private var cardsNeedingRenewal: [GermanWordData] {
+        store.history.filter(needsRenewal)
+    }
 
     private var appearance: Binding<AppAppearance> {
         Binding(
@@ -96,11 +101,20 @@ struct SettingsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     Button {
-                        Task { await renewExistingCards() }
+                        Task { await renewExistingCards(forceAll: false) }
                     } label: {
-                        Label(isRenewing ? "Renewing Cards" : "Renew Existing Cards", systemImage: "arrow.clockwise")
+                        Label(isRenewing ? "Renewing Cards" : "Renew Missing Fields", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(isRenewing || cardsNeedingRenewal.isEmpty)
+                    Button(role: .destructive) {
+                        showingForceRenewConfirmation = true
+                    } label: {
+                        Label("Force Renew All", systemImage: "exclamationmark.arrow.triangle.2.circlepath")
                     }
                     .disabled(isRenewing || store.history.isEmpty)
+                    Text("需要補資料的卡片：\(cardsNeedingRenewal.count) / \(store.count)")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                     if let renewStatus {
                         Text(renewStatus)
                             .font(.footnote)
@@ -134,11 +148,23 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .confirmationDialog(
+                "Force renew all cards?",
+                isPresented: $showingForceRenewConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Renew All Cards", role: .destructive) {
+                    Task { await renewExistingCards(forceAll: true) }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will call the LLM once for every saved card, even cards that already have the current fields.")
+            }
         }
     }
 
     @MainActor
-    private func renewExistingCards() async {
+    private func renewExistingCards(forceAll: Bool) async {
         let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
         let config = LLMConfiguration(provider: provider, baseURL: baseURL, model: model, apiKey: apiKey)
         guard config.isUsable else {
@@ -146,8 +172,11 @@ struct SettingsView: View {
             return
         }
 
-        let cards = store.history
-        guard !cards.isEmpty else { return }
+        let cards = forceAll ? store.history : cardsNeedingRenewal
+        guard !cards.isEmpty else {
+            renewStatus = "目前沒有需要補資料的卡片。"
+            return
+        }
 
         isRenewing = true
         renewStatus = "正在更新 0 / \(cards.count)"
@@ -171,6 +200,27 @@ struct SettingsView: View {
 
         isRenewing = false
         renewStatus = "已更新 \(updatedCount) 張卡片，跳過 \(skippedCount) 張。"
+    }
+
+    private func needsRenewal(_ card: GermanWordData) -> Bool {
+        if card.englishMeaning?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+            return true
+        }
+        if card.isValidGermanWord == nil {
+            return true
+        }
+        if !card.referenceSource.hasPrefix("LLM · ") {
+            return true
+        }
+        if isVerb(card), card.displayedVerbConjugation.isEmpty {
+            return true
+        }
+        return false
+    }
+
+    private func isVerb(_ card: GermanWordData) -> Bool {
+        let value = card.partOfSpeech.lowercased()
+        return value.contains("verb") || value.contains("動詞") || value.contains("verben")
     }
 }
 
