@@ -19,3 +19,4 @@ xcuserdata/
 
 # Local dictionary downloads
 .cache/
+Config/Signing.local.xcconfig

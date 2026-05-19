@@ -28,3 +28,14 @@ python3 Scripts/import_freedict.py
 ```
 
 The FreeDict deu-eng source is a GPLv3/AGPLv3 mixed work. Keep the license implications in mind before distributing builds.
+
+
+## Local Signing
+
+Personal signing values are kept out of git. For local iPhone installs, copy the example file and edit your team ID:
+
+```bash
+cp Config/Signing.example.xcconfig Config/Signing.local.xcconfig
+```
+
+`Config/Signing.local.xcconfig` is ignored by git. Do not put private keys, provisioning profiles, or App Store Connect credentials in tracked files.

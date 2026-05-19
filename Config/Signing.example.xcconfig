@@ -1,0 +1,6 @@
+// Copy this file to Signing.local.xcconfig and edit it locally.
+// Signing.local.xcconfig is ignored by git.
+
+DEVELOPMENT_TEAM = YOURTEAMID
+CODE_SIGN_STYLE = Automatic
+PRODUCT_BUNDLE_IDENTIFIER = uk.habseligkeiten.GermanCards

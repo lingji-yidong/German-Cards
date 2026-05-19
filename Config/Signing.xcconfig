@@ -1,0 +1,8 @@
+// Shared signing defaults. Keep secrets and personal team IDs out of this file.
+// Copy Signing.example.xcconfig to Signing.local.xcconfig for local device builds.
+
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM =
+PRODUCT_BUNDLE_IDENTIFIER = uk.habseligkeiten.GermanCards
+
+#include? "Signing.local.xcconfig"
