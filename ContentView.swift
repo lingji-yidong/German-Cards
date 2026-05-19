@@ -23,7 +23,7 @@ struct ContentView: View {
                     Label("Cards", systemImage: "rectangle.stack")
                 }
 
-            SettingsView()
+            SettingsView(store: store)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }

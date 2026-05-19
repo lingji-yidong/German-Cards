@@ -11,7 +11,6 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    VocabularyGoalCard(copy: text)
                     ArticleTableCard(copy: text)
                     AdjectiveEndingsCard(copy: text)
                     PrepositionCard(copy: text)
@@ -25,40 +24,6 @@ struct HomeView: View {
         }
     }
 
-}
-
-
-private struct VocabularyGoalCard: View {
-    let copy: GrammarCopy
-    private let rows = [("A1", 600), ("A2", 1300), ("B1", 2500), ("B2", 5000), ("C1", 8000)]
-
-    var body: some View {
-        GrammarCard(title: copy.vocabularyGoalTitle, icon: "chart.bar.doc.horizontal", tint: .blue) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(copy.vocabularyGoalDetail)
-                    .font(.footnote)
-                    .foregroundStyle(AppTheme.secondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 10)], alignment: .leading, spacing: 10) {
-                    ForEach(rows, id: \.0) { item in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(item.0)
-                                .font(.headline.weight(.black))
-                                .foregroundStyle(AppTheme.primaryText)
-                            Text("\(item.1)")
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(AppTheme.secondaryText)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(12)
-                        .background(AppTheme.softSurface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
-            }
-        }
-    }
 }
 
 private struct ArticleTableCard: View {
@@ -235,8 +200,6 @@ private struct GrammarCopy {
     let language: GrammarLanguage
 
     var navigationTitle: String { value("語法", "语法", "Grammar") }
-    var vocabularyGoalTitle: String { value("CEFR 詞彙量參考", "CEFR 词汇量参考", "CEFR vocabulary goals") }
-    var vocabularyGoalDetail: String { value("不同教材和考試要求會有差異；這些數字適合作為規劃個人詞典的粗略目標。", "不同教材和考试要求会有差异；这些数字适合作为规划个人词典的粗略目标。", "Courses and exams vary; use these as rough planning targets for your own dictionary.") }
     var articlesTitle: String { value("定冠詞 der / die / das", "定冠词 der / die / das", "Definite articles") }
     var caseLabel: String { value("格", "格", "Case") }
     var masc: String { value("陽性", "阳性", "Masc") }

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @ObservedObject var store: WordStore
     @AppStorage("llm_provider") private var providerRaw = LLMProvider.openAICompatible.rawValue
     @AppStorage("llm_base_url") private var baseURL = LLMProvider.openAICompatible.defaultBaseURL
     @AppStorage("llm_model") private var model = LLMProvider.openAICompatible.defaultModel
@@ -93,8 +94,56 @@ struct SettingsView: View {
                 } header: {
                     Text("Dictionary")
                 }
+
+                Section {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text("Generated Cards")
+                                .font(.subheadline.weight(.semibold))
+                            Spacer()
+                            Text("\(store.count)")
+                                .font(.title3.weight(.black).monospacedDigit())
+                                .foregroundStyle(AppTheme.brand)
+                        }
+                        CEFRProgressRow(level: "A1", target: 600, current: store.count)
+                        CEFRProgressRow(level: "A2", target: 1300, current: store.count)
+                        CEFRProgressRow(level: "B1", target: 2500, current: store.count)
+                        CEFRProgressRow(level: "B2", target: 5000, current: store.count)
+                        CEFRProgressRow(level: "C1", target: 8000, current: store.count)
+                    }
+                    .padding(.vertical, 4)
+                } header: {
+                    Text("CEFR Vocabulary Goals")
+                } footer: {
+                    Text("Vocabulary targets vary by course and exam. Use these as rough planning numbers for your own dictionary.")
+                }
             }
             .navigationTitle("Settings")
+        }
+    }
+}
+
+
+private struct CEFRProgressRow: View {
+    let level: String
+    let target: Int
+    let current: Int
+
+    private var progress: Double {
+        min(Double(current) / Double(target), 1)
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Text(level)
+                .font(.caption.weight(.bold))
+                .frame(width: 28, alignment: .leading)
+            ProgressView(value: progress)
+                .tint(AppTheme.brand)
+            Text("\(target)")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+                .frame(width: 52, alignment: .trailing)
         }
     }
 }
