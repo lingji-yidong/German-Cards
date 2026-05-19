@@ -36,19 +36,6 @@ enum GrammaticalGender: String, Codable, CaseIterable {
     var softTint: Color {
         tint.opacity(0.14)
     }
-
-    static func fromFreeDict(_ value: String) -> GrammaticalGender {
-        switch value.lowercased() {
-        case "masc", "m", "der":
-            return .masculine
-        case "fem", "f", "die":
-            return .feminine
-        case "neut", "n", "das":
-            return .neuter
-        default:
-            return .none
-        }
-    }
 }
 
 struct DeclensionRow: Codable, Hashable, Identifiable {
@@ -105,23 +92,6 @@ enum LLMProvider: String, CaseIterable, Identifiable {
             return ""
         }
     }
-}
-
-struct FreeDictBundle: Codable {
-    let source: String
-    let license: String
-    let downloadURL: String
-    let entryCount: Int
-    let entries: [FreeDictEntry]
-}
-
-struct FreeDictEntry: Codable, Hashable, Identifiable {
-    var id: String { word.lowercased() }
-    let word: String
-    let translations: [String]
-    let partOfSpeech: String
-    let gender: String
-    let source: String
 }
 
 struct LLMConfiguration {

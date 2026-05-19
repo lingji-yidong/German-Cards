@@ -17,6 +17,4 @@ xcuserdata/
 # macOS
 .DS_Store
 
-# Local dictionary downloads
-.cache/
 Config/Signing.local.xcconfig

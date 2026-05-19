@@ -83,17 +83,15 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Label("Local reference first", systemImage: "books.vertical")
-                    Text(ReferenceLexicon.freeDictStatus)
-                        .font(.footnote)
-                    Text(ReferenceLexicon.sourceSummary)
+                    Label("User dictionary", systemImage: "icloud.and.arrow.up")
+                    Text("Generated cards are saved as your personal dictionary. When iCloud Drive is available for this app, the dictionary is mirrored to iCloud documents as GermanCardsDictionary.json.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    Text("Run Scripts/import_freedict.py to regenerate the bundled subset from the FreeDict TEI source.")
+                    Text("No bundled third-party dictionary is shipped. Your word list starts from zero and grows only from cards you create.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } header: {
-                    Text("Dictionary Reference")
+                    Text("Dictionary")
                 }
             }
             .navigationTitle("Settings")

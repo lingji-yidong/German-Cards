@@ -122,7 +122,7 @@ final class LLMWordClient {
         exampleSentence, exampleTranslation, referenceSource, notes [string].
         Use Simplified Chinese for meaning and exampleTranslation. Prefer conservative grammar.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
-        Mention if the answer should be checked against Wiktionary/FreeDict when uncertain.
+        Mention uncertainty plainly when a form should be verified in an authoritative dictionary.
         """
     }
 }
