@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var store = WordStore()
+    @AppStorage("app_appearance") private var appearanceRaw = AppAppearance.system.rawValue
 
     var body: some View {
         TabView {
@@ -27,7 +28,8 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
         }
-        .tint(Color(red: 0.10, green: 0.36, blue: 0.72))
+        .tint(AppTheme.brand)
+        .preferredColorScheme((AppAppearance(rawValue: appearanceRaw) ?? .system).colorScheme)
     }
 }
 

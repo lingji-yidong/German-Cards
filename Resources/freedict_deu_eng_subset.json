@@ -1,0 +1,914 @@
+{
+  "source": "FreeDict German-English Ding/FreeDict dictionary 1.9-fd1",
+  "license": "GPLv3/AGPLv3 mixed work; see FreeDict TEI header and https://freedict.org/downloads/",
+  "downloadURL": "https://download.freedict.org/dictionaries/deu-eng/1.9-fd1/freedict-deu-eng-1.9-fd1.src.tar.xz",
+  "entryCount": 82,
+  "entries": [
+    {
+      "word": "Abend",
+      "translations": [
+        "evening",
+        "eve",
+        "eventide"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Antwort",
+      "translations": [
+        "answer",
+        "reply",
+        "response",
+        "in answer to"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Apfel",
+      "translations": [
+        "apple",
+        "peel an apple",
+        "for peanuts",
+        "for next to nothing"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Arbeit",
+      "translations": [
+        "work",
+        "at work",
+        "in the works",
+        "work in progress"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Arzt",
+      "translations": [
+        "medical doctor",
+        "doctor",
+        "medic",
+        "physician"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Auge",
+      "translations": [
+        "eye",
+        "saucer eyed",
+        "with the naked eye",
+        "for the naked eye"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Auto",
+      "translations": [
+        "car",
+        "automobile",
+        "a car with a capital C",
+        "go by car"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Bahnhof",
+      "translations": [
+        "railway station",
+        "railroad station",
+        "train station",
+        "station"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Baum",
+      "translations": [
+        "tree",
+        "be sitting in a tree (persons, big animals)",
+        "be sitting on a tree (birds)",
+        "prune/trim a tree"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Beispiel",
+      "translations": [
+        "example",
+        "worked-out example",
+        "worked example",
+        "using practical examples"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Berg",
+      "translations": [
+        "mountain",
+        "be long gone",
+        "be miles away"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Bild",
+      "translations": [
+        "picture",
+        "… then a more varied picture emerges.",
+        "A picture is worth a thousand words."
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Blume",
+      "translations": [
+        "flower",
+        "No flowers by request."
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Brief",
+      "translations": [
+        "letter",
+        "write a letter",
+        "send a letter",
+        "poison-pen letter"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Brot",
+      "translations": [
+        "bread",
+        "Man does not live by bread alone. (Bible)"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Buch",
+      "translations": [
+        "book",
+        "e-book",
+        "catalogue/list a book",
+        "shelve a book"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Computer",
+      "translations": [
+        "computer",
+        "pen computer",
+        "penabled computer",
+        "boot"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Deutsch",
+      "translations": [
+        "German",
+        "a summary in German",
+        "give a 10-minute presentation in German",
+        "I speak German."
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Essen",
+      "translations": [
+        "food",
+        "tucker",
+        "food and drink"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Familie",
+      "translations": [
+        "family",
+        "the close family",
+        "a family of three",
+        "keep a family"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Farbe",
+      "translations": [
+        "paint"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Fenster",
+      "translations": [
+        "box"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Film",
+      "translations": [
+        "picture"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Flughafen",
+      "translations": [
+        "airport"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Fluss",
+      "translations": [
+        "outflow",
+        "effluence",
+        "efflux",
+        "flux"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Frage",
+      "translations": [
+        "question",
+        "no-brainer question",
+        "a fair question",
+        "a question of time"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Freund",
+      "translations": [
+        "friend",
+        "sb.'s best friends",
+        "sb.'s bezzies/bessies",
+        "my best friend"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Geld",
+      "translations": [
+        "money",
+        "easy money",
+        "keep money in the bank",
+        "raise money/funds"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Geschäft",
+      "translations": [
+        "business",
+        "operation",
+        "concern",
+        "go out of business"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Grammatik",
+      "translations": [
+        "grammar"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Hand",
+      "translations": [
+        "hand",
+        "by hand",
+        "manual",
+        "manually"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Haus",
+      "translations": [
+        "establishment",
+        "institution"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Jahr",
+      "translations": [
+        "year",
+        "year after year",
+        "year-on-year",
+        "the year to come"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Kaffee",
+      "translations": [
+        "coffee",
+        "a mug of coffee",
+        "Do you like your coffee white or black?"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Karte",
+      "translations": [
+        "pass"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Kind",
+      "translations": [
+        "child",
+        "bairn",
+        "children aged three",
+        "from childhood"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Kopf",
+      "translations": [
+        "mind",
+        "spirit"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Krankenhaus",
+      "translations": [
+        "hospital",
+        "go into (the) hospital",
+        "be in (the) hospital",
+        "commit sb. to a hospital"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Land",
+      "translations": [
+        "federal state",
+        "Land"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Leben",
+      "translations": [
+        "life",
+        "risk one's life (to do …)",
+        "sacrifice one's life",
+        "give up one's life"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Lehrer",
+      "translations": [
+        "teacher",
+        "Ines was the only female teacher."
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Licht",
+      "translations": [
+        "lighting",
+        "illumination"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Liebe",
+      "translations": [
+        "love",
+        "love with a capital L",
+        "love at first sight",
+        "love at first glance"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Markt",
+      "translations": [
+        "market place",
+        "marketplace",
+        "market",
+        "the Hispanic marketplace"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Meer",
+      "translations": [
+        "sea"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Mensch",
+      "translations": [
+        "human being",
+        "human",
+        "member of the human race",
+        "homo sapiens"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Milch",
+      "translations": [
+        "milk",
+        "skin on the milk",
+        "Have we got any milk left?",
+        "Is there any milk left?"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Monat",
+      "translations": [
+        "month",
+        "first half of the month",
+        "the month of May"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Morgen",
+      "translations": [
+        "morning",
+        "early in the morning",
+        "the morning after",
+        "jingle-jangle morning"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Musik",
+      "translations": [
+        "music",
+        "listen to music while exercising",
+        "sound like music to sb.'s ears"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Nacht",
+      "translations": [
+        "night",
+        "at night",
+        "all night",
+        "all night long"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Name",
+      "translations": [
+        "name",
+        "sb.'s maiden name",
+        "give sb./sth. a name",
+        "assign a name to sb./sth."
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Platz",
+      "translations": [
+        "square"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Preis",
+      "translations": [
+        "award"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Problem",
+      "translations": [
+        "problem",
+        "solve a problem",
+        "resolve a problem",
+        "put the axe in the helve"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Regen",
+      "translations": [
+        "rain",
+        "rainfall",
+        "fall of rain",
+        "driving rain"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Reise",
+      "translations": [
+        "journey",
+        "our first journey to China",
+        "go on a journey",
+        "a journey through the ages"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Satz",
+      "translations": [
+        "statement",
+        "proposition",
+        "logically false statement/proposition",
+        "logically true statement/proposition"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Schnee",
+      "translations": [
+        "image noise",
+        "picture noise",
+        "snowy picture",
+        "snow"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Schule",
+      "translations": [
+        "pod",
+        "school",
+        "group"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Schüler",
+      "translations": [
+        "disciple"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Sonne",
+      "translations": [
+        "sun",
+        "the yellow rays of the setting sun",
+        "a place in the sun"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Spiel",
+      "translations": [
+        "bearing play",
+        "free play",
+        "play",
+        "bearing gap"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Sprache",
+      "translations": [
+        "diction"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Stadt",
+      "translations": [
+        "town",
+        "in town",
+        "all over the town",
+        "go into town"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Straße",
+      "translations": [
+        "avenue",
+        "alley"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Student",
+      "translations": [
+        "university student",
+        "undergraduate",
+        "Bachelor's student"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Tag",
+      "translations": [
+        "tag",
+        "HTML tag"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Tee",
+      "translations": [
+        "tea",
+        "bagged tea",
+        "tea in bags",
+        "Darjeeling tea"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Telefon",
+      "translations": [
+        "customer hotline"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Tisch",
+      "translations": [
+        "table",
+        "on the table",
+        "be at table",
+        "trestle table"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Tür",
+      "translations": [
+        "door",
+        "patio door",
+        "at the door",
+        "knock at the door"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Universität",
+      "translations": [
+        "university",
+        "uni",
+        "higher education institute",
+        "college"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Urlaub",
+      "translations": [
+        "leave",
+        "furlough"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Wasser",
+      "translations": [
+        "water",
+        "headsword",
+        "waterborne",
+        "can't hold a candle to sb."
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Weg",
+      "translations": [
+        "alley"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Wind",
+      "translations": [
+        "blast"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Woche",
+      "translations": [
+        "week",
+        "twice a week",
+        "during the week",
+        "5 whole weeks"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Wort",
+      "translations": [
+        "word",
+        "have a frank talk with sb.",
+        "have the final say",
+        "in simple terms"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Zeit",
+      "translations": [
+        "spell"
+      ],
+      "partOfSpeech": "n",
+      "gender": "fem",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Zimmer",
+      "translations": [
+        "room",
+        "rooms for rent",
+        "room en suite",
+        "room by room"
+      ],
+      "partOfSpeech": "n",
+      "gender": "neut",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    },
+    {
+      "word": "Zug",
+      "translations": [
+        "strain"
+      ],
+      "partOfSpeech": "n",
+      "gender": "masc",
+      "source": "FreeDict deu-eng 1.9-fd1"
+    }
+  ]
+}

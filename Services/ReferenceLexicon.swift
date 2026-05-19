@@ -1,7 +1,22 @@
 import Foundation
 
 enum ReferenceLexicon {
-    static let sourceSummary = "Bundled reference: curated common nouns cross-checked against Wiktionary-style article/plural data; recommended external datasets for expansion: FreeDict TEI (GPL) and Wiktionary dumps (CC BY-SA)."
+    static let sourceSummary = "Bundled reference: FreeDict deu-eng subset generated from TEI source, then curated noun cards for grammar details. Full importer: Scripts/import_freedict.py."
+
+
+    private static let freeDictBundle: FreeDictBundle? = {
+        let url = Bundle.main.url(forResource: "freedict_deu_eng_subset", withExtension: "json", subdirectory: "Resources")
+            ?? Bundle.main.url(forResource: "freedict_deu_eng_subset", withExtension: "json")
+        guard let url, let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+        return try? JSONDecoder().decode(FreeDictBundle.self, from: data)
+    }()
+
+    private static let freeDictEntries: [String: FreeDictEntry] = {
+        guard let bundle = freeDictBundle else { return [:] }
+        return Dictionary(uniqueKeysWithValues: bundle.entries.map { (normalize($0.word), $0) })
+    }()
 
     private static let entries: [String: GermanWordData] = Dictionary(uniqueKeysWithValues: [
         noun("Apfel", "苹果", .masculine, "Äpfel", "der Apfel", "den Apfel", "dem Apfel", "des Apfels", "den Äpfeln", "Ich esse einen roten Apfel.", "我吃一个红苹果。", ["Plural changes vowel: Apfel -> Äpfel."]),
@@ -20,15 +35,58 @@ enum ReferenceLexicon {
 
     static func lookup(_ rawWord: String) -> GermanWordData? {
         let key = normalize(rawWord)
-        return entries[key]
+        if let curated = entries[key] {
+            return curated
+        }
+        if let freeDict = freeDictEntries[key] {
+            return makeFreeDictCard(freeDict)
+        }
+        return nil
     }
 
     static var samples: [GermanWordData] {
-        entries.values.sorted { $0.word < $1.word }
+        let combined = Array(entries.values) + freeDictEntries.values.map(makeFreeDictCard)
+        return Array(combined.reduce(into: [String: GermanWordData]()) { result, item in
+            result[normalize(item.word)] = result[normalize(item.word)] ?? item
+        }.values).sorted { $0.word < $1.word }
+    }
+
+    static var freeDictStatus: String {
+        guard let bundle = freeDictBundle else {
+            return "FreeDict bundle not found. Run Scripts/import_freedict.py to generate Resources/freedict_deu_eng_subset.json."
+        }
+        return "FreeDict loaded: \(bundle.entryCount) entries from \(bundle.source)."
     }
 
     private static func normalize(_ word: String) -> String {
         word.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+
+    private static func makeFreeDictCard(_ entry: FreeDictEntry) -> GermanWordData {
+        let gender = GrammaticalGender.fromFreeDict(entry.gender)
+        let article = gender == .none ? "" : gender.rawValue
+        let base = article.isEmpty ? entry.word : "\(article) \(entry.word)"
+        let meaning = "EN: " + entry.translations.prefix(3).joined(separator: "; ")
+        let partOfSpeech = entry.partOfSpeech == "n" ? "Noun" : entry.partOfSpeech
+        return GermanWordData(
+            word: entry.word,
+            meaning: meaning,
+            partOfSpeech: partOfSpeech,
+            gender: gender,
+            pluralForm: "-",
+            declensionTable: [
+                DeclensionRow(caseName: "Nominativ", singular: base, plural: "-"),
+                DeclensionRow(caseName: "Akkusativ", singular: gender == .masculine ? "den \(entry.word)" : base, plural: "-"),
+                DeclensionRow(caseName: "Dativ", singular: gender == .feminine ? "der \(entry.word)" : (gender == .none ? "-" : "dem \(entry.word)"), plural: "-"),
+                DeclensionRow(caseName: "Genitiv", singular: gender == .feminine ? "der \(entry.word)" : (gender == .none ? "-" : "des \(entry.word)"), plural: "-")
+            ],
+            exampleSentence: "FreeDict reference entry: \(entry.word)",
+            exampleTranslation: meaning,
+            referenceSource: entry.source,
+            notes: ["Loaded from bundled FreeDict TEI subset.", "Translations are English references; use LLM for Chinese explanations and full inflection when needed."],
+            timestamp: Date().timeIntervalSince1970
+        )
     }
 
     private static func noun(_ word: String, _ meaning: String, _ gender: GrammaticalGender, _ plural: String, _ nominative: String, _ accusative: String, _ dative: String, _ genitive: String, _ dativePlural: String, _ example: String, _ translation: String, _ notes: [String]) -> (String, GermanWordData) {

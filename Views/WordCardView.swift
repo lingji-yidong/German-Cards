@@ -10,7 +10,7 @@ struct WordCardView: View {
             example
             notes
         }
-        .background(.white)
+        .background(AppTheme.elevatedSurface)
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -45,7 +45,7 @@ struct WordCardView: View {
                     }
                     Text(data.word)
                         .font(.system(size: 42, weight: .black, design: .rounded))
-                        .foregroundStyle(Color(red: 0.10, green: 0.12, blue: 0.16))
+                        .foregroundStyle(AppTheme.primaryText)
                         .minimumScaleFactor(0.72)
                         .lineLimit(1)
                 }
@@ -60,12 +60,12 @@ struct WordCardView: View {
             Text(data.meaning)
                 .font(.title3.weight(.medium))
                 .multilineTextAlignment(.center)
-                .foregroundStyle(Color(red: 0.19, green: 0.22, blue: 0.27))
+                .foregroundStyle(AppTheme.primaryText)
         }
         .padding(22)
         .background(
             LinearGradient(
-                colors: [data.gender.softTint, Color(red: 0.98, green: 0.98, blue: 0.97)],
+                colors: [data.gender.softTint, AppTheme.softSurface],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -86,11 +86,11 @@ struct WordCardView: View {
                     tableRow(row.caseName, row.singular, row.plural)
                 }
             }
-            .background(Color(red: 0.98, green: 0.98, blue: 0.97))
+            .background(AppTheme.softSurface)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                    .stroke(AppTheme.separator, lineWidth: 1)
             )
         }
         .padding(18)
@@ -132,7 +132,7 @@ struct WordCardView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
-        .background(Color(red: 0.99, green: 0.99, blue: 0.985))
+        .background(AppTheme.softSurface)
     }
 
     @ViewBuilder
@@ -146,7 +146,7 @@ struct WordCardView: View {
                 ForEach(data.notes, id: \.self) { note in
                     Text("• \(note)")
                         .font(.footnote)
-                        .foregroundStyle(Color(red: 0.28, green: 0.30, blue: 0.34))
+                        .foregroundStyle(AppTheme.secondaryText)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

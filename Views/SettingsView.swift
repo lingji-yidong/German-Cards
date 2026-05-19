@@ -6,6 +6,22 @@ struct SettingsView: View {
     @AppStorage("llm_model") private var model = LLMProvider.openAICompatible.defaultModel
     @AppStorage("llm_api_key") private var apiKey = ""
     @State private var saved = false
+    @AppStorage("app_appearance") private var appearanceRaw = AppAppearance.system.rawValue
+    @AppStorage("grammar_language") private var grammarLanguageRaw = GrammarLanguage.traditionalChinese.rawValue
+
+    private var appearance: Binding<AppAppearance> {
+        Binding(
+            get: { AppAppearance(rawValue: appearanceRaw) ?? .system },
+            set: { appearanceRaw = $0.rawValue }
+        )
+    }
+
+    private var grammarLanguage: Binding<GrammarLanguage> {
+        Binding(
+            get: { GrammarLanguage(rawValue: grammarLanguageRaw) ?? .traditionalChinese },
+            set: { grammarLanguageRaw = $0.rawValue }
+        )
+    }
 
     private var provider: Binding<LLMProvider> {
         Binding(
@@ -25,6 +41,23 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    Picker("Appearance", selection: appearance) {
+                        ForEach(AppAppearance.allCases) { option in
+                            Text(option.title).tag(option)
+                        }
+                    }
+                    Picker("Grammar Language", selection: grammarLanguage) {
+                        ForEach(GrammarLanguage.allCases) { option in
+                            Text(option.title).tag(option)
+                        }
+                    }
+                } header: {
+                    Text("Display")
+                } footer: {
+                    Text("Appearance follows the system by default. Grammar copy can be switched independently from the device language.")
+                }
+
                 Section {
                     Picker("Provider", selection: provider) {
                         ForEach(LLMProvider.allCases) { provider in
@@ -51,9 +84,12 @@ struct SettingsView: View {
 
                 Section {
                     Label("Local reference first", systemImage: "books.vertical")
+                    Text(ReferenceLexicon.freeDictStatus)
+                        .font(.footnote)
                     Text(ReferenceLexicon.sourceSummary)
                         .font(.footnote)
-                    Text("後續可把 FreeDict TEI 或 Wiktionary dump 轉成 bundled JSON，查詞時先本地命中，再 fallback 到 LLM。")
+                        .foregroundStyle(.secondary)
+                    Text("Run Scripts/import_freedict.py to regenerate the bundled subset from the FreeDict TEI source.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } header: {
