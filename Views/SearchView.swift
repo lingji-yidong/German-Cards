@@ -13,6 +13,7 @@ struct SearchView: View {
     @State private var isLoading = false
     @State private var deckIndex = 0
     @State private var showingLibrary = false
+    @State private var normalizedLookupMessage: String?
     @State private var suggestion: WordSuggestion?
     @FocusState private var isSearchFocused: Bool
 
@@ -26,6 +27,7 @@ struct SearchView: View {
                 VStack(spacing: 18) {
                     searchBar
                     dictionarySummary
+                    normalizedLookupBanner
                     statusContent
                 }
                 .padding(18)
@@ -55,6 +57,7 @@ struct SearchView: View {
                     suggestion = nil
                     errorMessage = nil
                     selectedWord = nil
+                    normalizedLookupMessage = nil
                     isSearchFocused = true
                 } label: {
                     Image(systemName: "xmark.circle.fill")
@@ -103,6 +106,21 @@ struct SearchView: View {
         .background(AppTheme.elevatedSurface)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.separator))
+    }
+
+    @ViewBuilder
+    private var normalizedLookupBanner: some View {
+        if let normalizedLookupMessage {
+            Label(normalizedLookupMessage, systemImage: "arrow.triangle.branch")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(AppTheme.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(AppTheme.elevatedSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.separator))
+        }
     }
 
     @ViewBuilder
@@ -179,8 +197,10 @@ struct SearchView: View {
         isSearchFocused = false
         errorMessage = nil
         suggestion = nil
+        normalizedLookupMessage = nil
         if let cached = store.findCached(term) {
             selectedWord = cached
+            updateNormalizedLookupMessage(input: term, result: cached)
             return
         }
 
@@ -197,10 +217,21 @@ struct SearchView: View {
                 return
             }
             selectedWord = result
+            updateNormalizedLookupMessage(input: term, result: result)
             store.save(result)
             deckIndex = 0
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func updateNormalizedLookupMessage(input: String, result: GermanWordData) {
+        let normalizedInput = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalizedWord = result.word.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !normalizedInput.isEmpty, normalizedInput != normalizedWord {
+            normalizedLookupMessage = "已將 ‘\(input)’ 對應到原型 ‘\(result.word)’"
+        } else {
+            normalizedLookupMessage = nil
         }
     }
 }

@@ -17,7 +17,16 @@ final class WordStore: ObservableObject {
 
     func findCached(_ word: String) -> GermanWordData? {
         let normalized = normalize(word)
-        return history.first { normalize($0.word) == normalized }
+        return history.first { card in
+            normalize(card.word) == normalized ||
+            normalize(card.pluralForm) == normalized ||
+            card.declensionTable.contains { row in
+                normalize(row.singular) == normalized || normalize(row.plural) == normalized
+            } ||
+            card.displayedVerbConjugation.contains { row in
+                normalize(row.form) == normalized
+            }
+        }
     }
 
     func save(_ data: GermanWordData) {

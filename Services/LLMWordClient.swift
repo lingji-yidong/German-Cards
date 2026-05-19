@@ -157,7 +157,8 @@ final class LLMWordClient {
         verbConjugation [{tense, pronoun, form}],
         exampleSentence, exampleTranslation, referenceSource, notes [string],
         isValidGermanWord, suggestedWord, confidence.
-        First validate the user's input. If it is misspelled, not German, or too ambiguous, set isValidGermanWord=false, put the most likely corrected German word in suggestedWord, set confidence 0..1, and do not invent a full card.
+        First validate the user's input. Inflected German forms are valid: plural nouns, declined nouns/adjectives, and conjugated verbs must set isValidGermanWord=true and return the dictionary lemma in word. For example, input "Augen" should return word "Auge", gender "das", and pluralForm "Augen".
+        Only set isValidGermanWord=false when the input is misspelled, not German, or too ambiguous. In that case put the most likely corrected German lemma in suggestedWord, set confidence 0..1, and do not invent a full card.
         Use Traditional Chinese consistently for meaning, exampleTranslation, and notes. Put an English gloss in englishMeaning.
         Use short, conservative notes in Traditional Chinese. Do not mix languages in notes except German examples.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
