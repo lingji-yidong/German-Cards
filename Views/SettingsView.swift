@@ -203,6 +203,9 @@ struct SettingsView: View {
     }
 
     private func needsRenewal(_ card: GermanWordData) -> Bool {
+        if card.effectiveSchemaVersion < GermanWordData.currentSchemaVersion {
+            return true
+        }
         if card.englishMeaning?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
             return true
         }

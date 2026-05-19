@@ -121,6 +121,7 @@ final class LLMWordClient {
                 isValidGermanWord: decoded.isValidGermanWord,
                 suggestedWord: decoded.suggestedWord,
                 confidence: decoded.confidence,
+                schemaVersion: GermanWordData.currentSchemaVersion,
                 timestamp: decoded.timestamp
             )
         }
@@ -145,6 +146,7 @@ final class LLMWordClient {
             isValidGermanWord: data.isValidGermanWord,
             suggestedWord: data.suggestedWord,
             confidence: data.confidence,
+            schemaVersion: GermanWordData.currentSchemaVersion,
             timestamp: data.timestamp
         )
     }
@@ -202,6 +204,7 @@ private struct LLMWordPayload: Decodable {
             isValidGermanWord: isValidGermanWord,
             suggestedWord: suggestedWord,
             confidence: confidence,
+            schemaVersion: GermanWordData.currentSchemaVersion,
             timestamp: Date().timeIntervalSince1970
         )
     }

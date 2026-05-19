@@ -53,6 +53,8 @@ struct VerbConjugationRow: Codable, Hashable, Identifiable {
 }
 
 struct GermanWordData: Codable, Identifiable, Hashable {
+    static let currentSchemaVersion = 2
+
     var id: String { word.lowercased() }
     let word: String
     let meaning: String
@@ -69,6 +71,7 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     let isValidGermanWord: Bool?
     let suggestedWord: String?
     let confidence: Double?
+    let schemaVersion: Int?
     let timestamp: TimeInterval
 
     var displayArticle: String {
@@ -81,6 +84,10 @@ struct GermanWordData: Codable, Identifiable, Hashable {
 
     var displayedVerbConjugation: [VerbConjugationRow] {
         verbConjugation ?? []
+    }
+
+    var effectiveSchemaVersion: Int {
+        schemaVersion ?? 1
     }
 }
 

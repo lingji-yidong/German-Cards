@@ -208,6 +208,7 @@ private struct CardEditView: View {
             isValidGermanWord: card.isValidGermanWord,
             suggestedWord: card.suggestedWord,
             confidence: card.confidence,
+            schemaVersion: GermanWordData.currentSchemaVersion,
             timestamp: Date().timeIntervalSince1970
         )
         store.replace(original: card, with: updated)
