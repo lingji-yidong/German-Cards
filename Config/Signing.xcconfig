@@ -11,3 +11,5 @@ PRODUCT_BUNDLE_IDENTIFIER = uk.habseligkeiten.GermanCards
 SUPPORTED_PLATFORMS = iphoneos iphonesimulator macosx
 SUPPORTS_MACCATALYST = YES
 DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO
+// Keep local Mac test builds runnable on current non-beta macOS releases.
+MACOSX_DEPLOYMENT_TARGET = 15.0
