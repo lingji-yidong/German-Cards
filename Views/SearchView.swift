@@ -22,7 +22,7 @@ struct SearchView: View {
             ScrollView {
                 VStack(spacing: 18) {
                     searchBar
-                    dictionaryProgress
+                    dictionarySummary
                     statusContent
                 }
                 .padding(18)
@@ -56,38 +56,22 @@ struct SearchView: View {
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.separator))
     }
 
-    private var dictionaryProgress: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("Your Dictionary")
-                    .font(.headline.weight(.bold))
-                    .foregroundStyle(AppTheme.primaryText)
-                Spacer()
-                Text("\(store.count) cards")
-                    .font(.title3.weight(.black).monospacedDigit())
-                    .foregroundStyle(AppTheme.brand)
-            }
-
+    private var dictionarySummary: some View {
+        HStack(spacing: 12) {
+            Label("\(store.count) cards", systemImage: "rectangle.stack")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.primaryText)
+            Spacer()
             Text(store.storageDescription)
-                .font(.footnote)
-                .foregroundStyle(AppTheme.secondaryText)
-
-            VStack(alignment: .leading, spacing: 8) {
-                CEFRRow(level: "A1", target: 600, current: store.count)
-                CEFRRow(level: "A2", target: 1300, current: store.count)
-                CEFRRow(level: "B1", target: 2500, current: store.count)
-                CEFRRow(level: "B2", target: 5000, current: store.count)
-                CEFRRow(level: "C1", target: 8000, current: store.count)
-            }
-
-            Text("CEFR vocabulary counts vary by course and exam. Treat these as practical planning targets, not strict requirements.")
                 .font(.caption)
                 .foregroundStyle(AppTheme.secondaryText)
+                .lineLimit(1)
         }
-        .padding(16)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
         .background(AppTheme.elevatedSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.separator))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.separator))
     }
 
     @ViewBuilder
@@ -142,33 +126,6 @@ struct SearchView: View {
             deckIndex = 0
         } catch {
             errorMessage = error.localizedDescription
-        }
-    }
-}
-
-private struct CEFRRow: View {
-    let level: String
-    let target: Int
-    let current: Int
-
-    private var progress: Double {
-        min(Double(current) / Double(target), 1)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                Text(level)
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(AppTheme.primaryText)
-                    .frame(width: 28, alignment: .leading)
-                ProgressView(value: progress)
-                    .tint(AppTheme.brand)
-                Text("\(target)")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(AppTheme.secondaryText)
-                    .frame(width: 48, alignment: .trailing)
-            }
         }
     }
 }
