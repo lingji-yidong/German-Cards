@@ -53,6 +53,7 @@ struct VerbConjugationRow: Codable, Hashable, Identifiable {
 }
 
 struct GermanWordData: Codable, Identifiable, Hashable {
+    // Bump this when generated card content changes enough to justify smart renewal.
     static let currentSchemaVersion = 2
 
     var id: String { word.lowercased() }
@@ -87,6 +88,7 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     }
 
     var effectiveSchemaVersion: Int {
+        // Older saved JSON has no schemaVersion; treat it as the original schema.
         schemaVersion ?? 1
     }
 }

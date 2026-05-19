@@ -80,6 +80,7 @@ final class WordStore: ObservableObject {
     }
 
     private func persist() {
+        // UserDefaults is the local fallback; iCloud Drive is an optional mirror when entitlements are available.
         mirrorToUserDefaults()
         guard let data = try? JSONEncoder().encode(history) else { return }
         if let fileURL = dictionaryFileURL(createDirectory: true) {
@@ -108,6 +109,7 @@ final class WordStore: ObservableObject {
     }
 
     private func iCloudDocumentsDirectory() -> URL? {
+        // nil asks the system for the app's default iCloud container from entitlements.
         guard let container = FileManager.default.url(forUbiquityContainerIdentifier: nil) else { return nil }
         return container.appendingPathComponent("Documents", isDirectory: true)
     }

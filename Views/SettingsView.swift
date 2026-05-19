@@ -203,6 +203,7 @@ struct SettingsView: View {
     }
 
     private func needsRenewal(_ card: GermanWordData) -> Bool {
+        // Keep the default renewal path token-conscious; only call the LLM for stale or incomplete cards.
         if card.effectiveSchemaVersion < GermanWordData.currentSchemaVersion {
             return true
         }
