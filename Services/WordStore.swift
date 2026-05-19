@@ -26,6 +26,26 @@ final class WordStore: ObservableObject {
         persist()
     }
 
+    func replace(original: GermanWordData, with updated: GermanWordData) {
+        history.removeAll { item in
+            normalize(item.word) == normalize(original.word) || normalize(item.word) == normalize(updated.word)
+        }
+        history.insert(updated, at: 0)
+        persist()
+    }
+
+    func delete(_ data: GermanWordData) {
+        history.removeAll { normalize($0.word) == normalize(data.word) }
+        persist()
+    }
+
+    func delete(at offsets: IndexSet) {
+        for index in offsets.sorted(by: >) where history.indices.contains(index) {
+            history.remove(at: index)
+        }
+        persist()
+    }
+
     func reload() {
         load()
     }

@@ -12,6 +12,7 @@ struct SearchView: View {
     @State private var errorMessage: String?
     @State private var isLoading = false
     @State private var deckIndex = 0
+    @State private var showingLibrary = false
     @State private var suggestion: WordSuggestion?
     @FocusState private var isSearchFocused: Bool
 
@@ -33,6 +34,9 @@ struct SearchView: View {
             .scrollDismissesKeyboard(.interactively)
             .onTapGesture { isSearchFocused = false }
             .navigationTitle("Cards")
+            .sheet(isPresented: $showingLibrary) {
+                CardLibraryView(store: store)
+            }
         }
     }
 
@@ -84,6 +88,15 @@ struct SearchView: View {
                 .font(.caption)
                 .foregroundStyle(AppTheme.secondaryText)
                 .lineLimit(1)
+            Button {
+                showingLibrary = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+                    .frame(width: 34, height: 34)
+            }
+            .buttonStyle(.bordered)
+            .disabled(store.history.isEmpty)
+            .accessibilityLabel("管理卡片")
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)

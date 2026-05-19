@@ -113,6 +113,7 @@ final class LLMWordClient {
                 gender: decoded.gender,
                 pluralForm: decoded.pluralForm,
                 declensionTable: decoded.declensionTable,
+                verbConjugation: decoded.verbConjugation,
                 exampleSentence: decoded.exampleSentence,
                 exampleTranslation: decoded.exampleTranslation,
                 referenceSource: decoded.referenceSource,
@@ -136,6 +137,7 @@ final class LLMWordClient {
             gender: data.gender,
             pluralForm: data.pluralForm,
             declensionTable: data.declensionTable,
+            verbConjugation: data.verbConjugation,
             exampleSentence: data.exampleSentence,
             exampleTranslation: data.exampleTranslation,
             referenceSource: source,
@@ -152,12 +154,14 @@ final class LLMWordClient {
         Return only strict JSON for a German vocabulary card. Fields:
         word, meaning, englishMeaning, partOfSpeech, gender ("der", "die", "das", "none"), pluralForm,
         declensionTable [{caseName, singular, plural}],
+        verbConjugation [{tense, pronoun, form}],
         exampleSentence, exampleTranslation, referenceSource, notes [string],
         isValidGermanWord, suggestedWord, confidence.
         First validate the user's input. If it is misspelled, not German, or too ambiguous, set isValidGermanWord=false, put the most likely corrected German word in suggestedWord, set confidence 0..1, and do not invent a full card.
         Use Traditional Chinese consistently for meaning, exampleTranslation, and notes. Put an English gloss in englishMeaning.
         Use short, conservative notes in Traditional Chinese. Do not mix languages in notes except German examples.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
+        For verbs, include common conjugations in verbConjugation: Präsens ich/du/er-sie-es/wir/ihr/sie-Sie, plus Präteritum and Perfekt summary rows when useful. Use [] for non-verbs.
         Mention uncertainty plainly in Traditional Chinese when a form should be verified in an authoritative dictionary.
         """
     }
@@ -171,6 +175,7 @@ private struct LLMWordPayload: Decodable {
     let gender: String?
     let pluralForm: String?
     let declensionTable: [DeclensionRow]?
+    let verbConjugation: [VerbConjugationRow]?
     let exampleSentence: String?
     let exampleTranslation: String?
     let referenceSource: String?
@@ -188,6 +193,7 @@ private struct LLMWordPayload: Decodable {
             gender: GrammaticalGender(rawValue: gender ?? "none") ?? .none,
             pluralForm: pluralForm ?? "-",
             declensionTable: declensionTable ?? [],
+            verbConjugation: verbConjugation,
             exampleSentence: exampleSentence ?? "-",
             exampleTranslation: exampleTranslation ?? "-",
             referenceSource: referenceSource ?? "LLM generated",

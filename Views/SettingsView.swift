@@ -7,8 +7,12 @@ struct SettingsView: View {
     @AppStorage("llm_model") private var model = LLMProvider.openAICompatible.defaultModel
     @AppStorage("llm_api_key") private var apiKey = ""
     @State private var saved = false
+    @State private var isRenewing = false
+    @State private var renewStatus: String?
     @AppStorage("app_appearance") private var appearanceRaw = AppAppearance.system.rawValue
     @AppStorage("grammar_language") private var grammarLanguageRaw = GrammarLanguage.traditionalChinese.rawValue
+
+    private let client = LLMWordClient()
 
     private var appearance: Binding<AppAppearance> {
         Binding(
@@ -91,6 +95,17 @@ struct SettingsView: View {
                     Text("No bundled third-party dictionary is shipped. Your word list starts from zero and grows only from cards you create.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                    Button {
+                        Task { await renewExistingCards() }
+                    } label: {
+                        Label(isRenewing ? "Renewing Cards" : "Renew Existing Cards", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(isRenewing || store.history.isEmpty)
+                    if let renewStatus {
+                        Text(renewStatus)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
                 } header: {
                     Text("Dictionary")
                 }
@@ -120,6 +135,42 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
         }
+    }
+
+    @MainActor
+    private func renewExistingCards() async {
+        let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
+        let config = LLMConfiguration(provider: provider, baseURL: baseURL, model: model, apiKey: apiKey)
+        guard config.isUsable else {
+            renewStatus = "請先填好 LLM provider URL、model 和 API key。"
+            return
+        }
+
+        let cards = store.history
+        guard !cards.isEmpty else { return }
+
+        isRenewing = true
+        renewStatus = "正在更新 0 / \(cards.count)"
+        var updatedCount = 0
+        var skippedCount = 0
+
+        for (index, card) in cards.enumerated() {
+            do {
+                let refreshed = try await client.fetchWordInfo(word: card.word, configuration: config)
+                if refreshed.isProbablyValid {
+                    store.replace(original: card, with: refreshed)
+                    updatedCount += 1
+                } else {
+                    skippedCount += 1
+                }
+            } catch {
+                skippedCount += 1
+            }
+            renewStatus = "正在更新 \(index + 1) / \(cards.count)"
+        }
+
+        isRenewing = false
+        renewStatus = "已更新 \(updatedCount) 張卡片，跳過 \(skippedCount) 張。"
     }
 }
 

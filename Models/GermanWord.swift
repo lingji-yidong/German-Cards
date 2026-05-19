@@ -45,6 +45,13 @@ struct DeclensionRow: Codable, Hashable, Identifiable {
     let plural: String
 }
 
+struct VerbConjugationRow: Codable, Hashable, Identifiable {
+    var id: String { "\(tense)-\(pronoun)" }
+    let tense: String
+    let pronoun: String
+    let form: String
+}
+
 struct GermanWordData: Codable, Identifiable, Hashable {
     var id: String { word.lowercased() }
     let word: String
@@ -54,6 +61,7 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     let gender: GrammaticalGender
     let pluralForm: String
     let declensionTable: [DeclensionRow]
+    let verbConjugation: [VerbConjugationRow]?
     let exampleSentence: String
     let exampleTranslation: String
     let referenceSource: String
@@ -69,6 +77,10 @@ struct GermanWordData: Codable, Identifiable, Hashable {
 
     var isProbablyValid: Bool {
         isValidGermanWord ?? true
+    }
+
+    var displayedVerbConjugation: [VerbConjugationRow] {
+        verbConjugation ?? []
     }
 }
 

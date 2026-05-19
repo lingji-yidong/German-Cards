@@ -9,6 +9,7 @@ struct WordCardView: View {
         VStack(spacing: 0) {
             header
             declension
+            conjugation
             example
             notes
         }
@@ -136,6 +137,49 @@ struct WordCardView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, isHeader ? 10 : 12)
+    }
+
+    @ViewBuilder
+    private var conjugation: some View {
+        let rows = data.displayedVerbConjugation
+        if !rows.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Verb Conjugation", systemImage: "point.3.connected.trianglepath.dotted")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+
+                VStack(spacing: 0) {
+                    ForEach(rows) { row in
+                        HStack(alignment: .firstTextBaseline, spacing: 10) {
+                            Text(row.tense)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(data.gender.tint)
+                                .frame(width: 74, alignment: .leading)
+                            Text(row.pronoun)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                                .frame(width: 70, alignment: .leading)
+                            Text(row.form)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(AppTheme.primaryText)
+                                .textSelection(.enabled)
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 9)
+                        if row.id != rows.last?.id {
+                            Divider()
+                        }
+                    }
+                }
+                .background(AppTheme.softSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.separator))
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 18)
+        }
     }
 
     private var example: some View {
