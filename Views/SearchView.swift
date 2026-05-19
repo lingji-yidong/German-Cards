@@ -185,7 +185,7 @@ struct SearchView: View {
         ContentUnavailableView(
             "Start your own dictionary",
             systemImage: "rectangle.stack.badge.plus",
-            description: Text("Generate your first card above. Saved cards become your personal dictionary and can be mirrored to iCloud Drive when iCloud is available for the app.")
+            description: Text("Generate your first card above. Saved cards become your personal dictionary and can be exported from Settings.")
         )
         .padding(.top, 24)
     }

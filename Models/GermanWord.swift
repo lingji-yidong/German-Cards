@@ -52,9 +52,15 @@ struct VerbConjugationRow: Codable, Hashable, Identifiable {
     let form: String
 }
 
+struct AdjectiveComparison: Codable, Hashable {
+    let positive: String
+    let comparative: String
+    let superlative: String
+}
+
 struct GermanWordData: Codable, Identifiable, Hashable {
     // Bump this when generated card content changes enough to justify smart renewal.
-    static let currentSchemaVersion = 2
+    static let currentSchemaVersion = 3
 
     var id: String { word.lowercased() }
     let word: String
@@ -65,6 +71,7 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     let pluralForm: String
     let declensionTable: [DeclensionRow]
     let verbConjugation: [VerbConjugationRow]?
+    let adjectiveComparison: AdjectiveComparison?
     let exampleSentence: String
     let exampleTranslation: String
     let referenceSource: String
@@ -85,6 +92,10 @@ struct GermanWordData: Codable, Identifiable, Hashable {
 
     var displayedVerbConjugation: [VerbConjugationRow] {
         verbConjugation ?? []
+    }
+
+    var displayedAdjectiveComparison: AdjectiveComparison? {
+        adjectiveComparison
     }
 
     var effectiveSchemaVersion: Int {

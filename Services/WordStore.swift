@@ -7,7 +7,6 @@ final class WordStore: ObservableObject {
     @Published private(set) var storageDescription = "Local dictionary"
 
     private let storageKey = "german_cards_history_v1"
-    private let fileName = "GermanCardsDictionary.json"
 
     init() {
         load()
@@ -59,62 +58,65 @@ final class WordStore: ObservableObject {
         load()
     }
 
-    private func load() {
-        if let fileURL = dictionaryFileURL(),
-           let data = try? Data(contentsOf: fileURL),
-           let decoded = try? JSONDecoder().decode([GermanWordData].self, from: data) {
-            history = decoded.sorted { $0.timestamp > $1.timestamp }
-            storageDescription = "iCloud Drive dictionary"
-            mirrorToUserDefaults()
-            return
-        }
+    func exportData() throws -> Data {
+        let archive = DictionaryArchive(cards: history)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return try encoder.encode(archive)
+    }
 
+    @discardableResult
+    func importData(_ data: Data) throws -> Int {
+        let cards = try decodeImportedCards(from: data)
+        for card in cards {
+            history.removeAll { normalize($0.word) == normalize(card.word) }
+            history.append(card)
+        }
+        history.sort { $0.timestamp > $1.timestamp }
+        persist()
+        return cards.count
+    }
+
+    private func load() {
         guard let data = UserDefaults.standard.data(forKey: storageKey) else {
             history = []
-            storageDescription = iCloudDocumentsDirectory() == nil ? "Local dictionary" : "iCloud ready"
+            storageDescription = "Local dictionary"
             return
         }
         history = ((try? JSONDecoder().decode([GermanWordData].self, from: data)) ?? [])
             .sorted { $0.timestamp > $1.timestamp }
-        storageDescription = iCloudDocumentsDirectory() == nil ? "Local dictionary" : "Local dictionary, iCloud file will be created after next save"
+        storageDescription = "Local dictionary"
     }
 
     private func persist() {
-        // UserDefaults is the local fallback; iCloud Drive is an optional mirror when entitlements are available.
-        mirrorToUserDefaults()
-        guard let data = try? JSONEncoder().encode(history) else { return }
-        if let fileURL = dictionaryFileURL(createDirectory: true) {
-            do {
-                try data.write(to: fileURL, options: [.atomic])
-                storageDescription = "iCloud Drive dictionary"
-            } catch {
-                storageDescription = "Local dictionary, iCloud write failed"
-            }
-        } else {
-            storageDescription = "Local dictionary"
-        }
-    }
-
-    private func mirrorToUserDefaults() {
+        // UserDefaults is the local store; export/import handles user-controlled sync.
         guard let data = try? JSONEncoder().encode(history) else { return }
         UserDefaults.standard.set(data, forKey: storageKey)
+        storageDescription = "Local dictionary"
     }
 
-    private func dictionaryFileURL(createDirectory: Bool = false) -> URL? {
-        guard let directory = iCloudDocumentsDirectory() else { return nil }
-        if createDirectory {
-            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    private func decodeImportedCards(from data: Data) throws -> [GermanWordData] {
+        let decoder = JSONDecoder()
+        if let archive = try? decoder.decode(DictionaryArchive.self, from: data) {
+            return archive.cards
         }
-        return directory.appendingPathComponent(fileName)
-    }
-
-    private func iCloudDocumentsDirectory() -> URL? {
-        // nil asks the system for the app's default iCloud container from entitlements.
-        guard let container = FileManager.default.url(forUbiquityContainerIdentifier: nil) else { return nil }
-        return container.appendingPathComponent("Documents", isDirectory: true)
+        return try decoder.decode([GermanWordData].self, from: data)
     }
 
     private func normalize(_ word: String) -> String {
         word.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+}
+
+
+private struct DictionaryArchive: Codable {
+    let archiveVersion: Int
+    let exportedAt: TimeInterval
+    let cards: [GermanWordData]
+
+    init(cards: [GermanWordData]) {
+        self.archiveVersion = 1
+        self.exportedAt = Date().timeIntervalSince1970
+        self.cards = cards
     }
 }

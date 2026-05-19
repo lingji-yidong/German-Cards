@@ -198,6 +198,7 @@ private struct CardEditView: View {
             pluralForm: pluralForm.trimmingCharacters(in: .whitespacesAndNewlines),
             declensionTable: card.declensionTable,
             verbConjugation: card.verbConjugation,
+            adjectiveComparison: card.adjectiveComparison,
             exampleSentence: exampleSentence.trimmingCharacters(in: .whitespacesAndNewlines),
             exampleTranslation: exampleTranslation.trimmingCharacters(in: .whitespacesAndNewlines),
             referenceSource: referenceSource.trimmingCharacters(in: .whitespacesAndNewlines),

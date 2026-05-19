@@ -114,6 +114,7 @@ final class LLMWordClient {
                 pluralForm: decoded.pluralForm,
                 declensionTable: decoded.declensionTable,
                 verbConjugation: decoded.verbConjugation,
+                adjectiveComparison: decoded.adjectiveComparison,
                 exampleSentence: decoded.exampleSentence,
                 exampleTranslation: decoded.exampleTranslation,
                 referenceSource: decoded.referenceSource,
@@ -139,6 +140,7 @@ final class LLMWordClient {
             pluralForm: data.pluralForm,
             declensionTable: data.declensionTable,
             verbConjugation: data.verbConjugation,
+            adjectiveComparison: data.adjectiveComparison,
             exampleSentence: data.exampleSentence,
             exampleTranslation: data.exampleTranslation,
             referenceSource: source,
@@ -157,6 +159,7 @@ final class LLMWordClient {
         word, meaning, englishMeaning, partOfSpeech, gender ("der", "die", "das", "none"), pluralForm,
         declensionTable [{caseName, singular, plural}],
         verbConjugation [{tense, pronoun, form}],
+        adjectiveComparison {positive, comparative, superlative},
         exampleSentence, exampleTranslation, referenceSource, notes [string],
         isValidGermanWord, suggestedWord, confidence.
         First validate the user's input. Inflected German forms are valid: plural nouns, declined nouns/adjectives, and conjugated verbs must set isValidGermanWord=true and return the dictionary lemma in word. For example, input "Augen" should return word "Auge", gender "das", and pluralForm "Augen".
@@ -165,6 +168,7 @@ final class LLMWordClient {
         Use short, conservative notes in Traditional Chinese. Do not mix languages in notes except German examples.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
         For verbs, include common conjugations in verbConjugation: Präsens ich/du/er-sie-es/wir/ihr/sie-Sie, plus Präteritum and Perfekt summary rows when useful. Use [] for non-verbs.
+        For adjectives, include adjectiveComparison with positive, comparative, and superlative forms, for example {"positive":"schnell","comparative":"schneller","superlative":"am schnellsten"}. Use null for non-adjectives.
         Mention uncertainty plainly in Traditional Chinese when a form should be verified in an authoritative dictionary.
         """
     }
@@ -179,6 +183,7 @@ private struct LLMWordPayload: Decodable {
     let pluralForm: String?
     let declensionTable: [DeclensionRow]?
     let verbConjugation: [VerbConjugationRow]?
+    let adjectiveComparison: AdjectiveComparison?
     let exampleSentence: String?
     let exampleTranslation: String?
     let referenceSource: String?
@@ -197,6 +202,7 @@ private struct LLMWordPayload: Decodable {
             pluralForm: pluralForm ?? "-",
             declensionTable: declensionTable ?? [],
             verbConjugation: verbConjugation,
+            adjectiveComparison: adjectiveComparison,
             exampleSentence: exampleSentence ?? "-",
             exampleTranslation: exampleTranslation ?? "-",
             referenceSource: referenceSource ?? "LLM generated",

@@ -10,6 +10,7 @@ struct WordCardView: View {
             header
             declension
             conjugation
+            adjectiveComparison
             example
             notes
         }
@@ -180,6 +181,47 @@ struct WordCardView: View {
             .padding(.horizontal, 18)
             .padding(.bottom, 18)
         }
+    }
+
+    @ViewBuilder
+    private var adjectiveComparison: some View {
+        if let comparison = data.displayedAdjectiveComparison {
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Adjective Comparison", systemImage: "arrow.up.forward")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+
+                VStack(spacing: 0) {
+                    comparisonRow("Positive", comparison.positive)
+                    Divider()
+                    comparisonRow("Comparative", comparison.comparative)
+                    Divider()
+                    comparisonRow("Superlative", comparison.superlative)
+                }
+                .background(AppTheme.softSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.separator))
+            }
+            .padding(.horizontal, 18)
+            .padding(.bottom, 18)
+        }
+    }
+
+    private func comparisonRow(_ label: String, _ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(label)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(data.gender.tint)
+                .frame(width: 92, alignment: .leading)
+            Text(value)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(AppTheme.primaryText)
+                .textSelection(.enabled)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 
     private var example: some View {

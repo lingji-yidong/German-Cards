@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @ObservedObject var store: WordStore
@@ -10,6 +11,10 @@ struct SettingsView: View {
     @State private var isRenewing = false
     @State private var renewStatus: String?
     @State private var showingForceRenewConfirmation = false
+    @State private var isExportingDictionary = false
+    @State private var isImportingDictionary = false
+    @State private var dictionaryDocument = DictionaryExportDocument()
+    @State private var dictionaryTransferStatus: String?
     @AppStorage("app_appearance") private var appearanceRaw = AppAppearance.system.rawValue
     @AppStorage("grammar_language") private var grammarLanguageRaw = GrammarLanguage.traditionalChinese.rawValue
 
@@ -93,13 +98,29 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Label("User dictionary", systemImage: "icloud.and.arrow.up")
-                    Text("Generated cards are saved as your personal dictionary. When iCloud Drive is available for this app, the dictionary is mirrored to iCloud documents as GermanCardsDictionary.json.")
+                    Label("User dictionary", systemImage: "folder")
+                    Text("Generated cards are saved locally. Use Export and Import to sync through Files, AirDrop, Git, or your own cloud storage.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     Text("No bundled third-party dictionary is shipped. Your word list starts from zero and grows only from cards you create.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
+                    Button {
+                        exportDictionary()
+                    } label: {
+                        Label("Export Dictionary", systemImage: "square.and.arrow.up")
+                    }
+                    .disabled(store.history.isEmpty)
+                    Button {
+                        isImportingDictionary = true
+                    } label: {
+                        Label("Import Dictionary", systemImage: "square.and.arrow.down")
+                    }
+                    if let dictionaryTransferStatus {
+                        Text(dictionaryTransferStatus)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
                     Button {
                         Task { await renewExistingCards(forceAll: false) }
                     } label: {
@@ -148,6 +169,22 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .fileExporter(
+                isPresented: $isExportingDictionary,
+                document: dictionaryDocument,
+                contentType: .json,
+                defaultFilename: "GermanCardsDictionary"
+            ) { result in
+                switch result {
+                case .success:
+                    dictionaryTransferStatus = "Dictionary exported."
+                case .failure(let error):
+                    dictionaryTransferStatus = "Export failed: \(error.localizedDescription)"
+                }
+            }
+            .fileImporter(isPresented: $isImportingDictionary, allowedContentTypes: [.json]) { result in
+                importDictionary(result)
+            }
             .confirmationDialog(
                 "Force renew all cards?",
                 isPresented: $showingForceRenewConfirmation,
@@ -160,6 +197,29 @@ struct SettingsView: View {
             } message: {
                 Text("This will call the LLM once for every saved card, even cards that already have the current fields.")
             }
+        }
+    }
+
+    private func exportDictionary() {
+        do {
+            dictionaryDocument = DictionaryExportDocument(data: try store.exportData())
+            isExportingDictionary = true
+        } catch {
+            dictionaryTransferStatus = "Export failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func importDictionary(_ result: Result<URL, Error>) {
+        do {
+            let url = try result.get()
+            let didAccess = url.startAccessingSecurityScopedResource()
+            defer {
+                if didAccess { url.stopAccessingSecurityScopedResource() }
+            }
+            let importedCount = try store.importData(Data(contentsOf: url))
+            dictionaryTransferStatus = "Imported \(importedCount) cards."
+        } catch {
+            dictionaryTransferStatus = "Import failed: \(error.localizedDescription)"
         }
     }
 
@@ -204,7 +264,7 @@ struct SettingsView: View {
 
     private func needsRenewal(_ card: GermanWordData) -> Bool {
         // Keep the default renewal path token-conscious; only call the LLM for stale or incomplete cards.
-        if card.effectiveSchemaVersion < GermanWordData.currentSchemaVersion {
+        if card.effectiveSchemaVersion < 2 {
             return true
         }
         if card.englishMeaning?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
@@ -219,12 +279,20 @@ struct SettingsView: View {
         if isVerb(card), card.displayedVerbConjugation.isEmpty {
             return true
         }
+        if isAdjective(card), card.displayedAdjectiveComparison == nil {
+            return true
+        }
         return false
     }
 
     private func isVerb(_ card: GermanWordData) -> Bool {
         let value = card.partOfSpeech.lowercased()
         return value.contains("verb") || value.contains("動詞") || value.contains("verben")
+    }
+
+    private func isAdjective(_ card: GermanWordData) -> Bool {
+        let value = card.partOfSpeech.lowercased()
+        return value.contains("adjective") || value.contains("adj") || value.contains("形容詞") || value.contains("adjektiv")
     }
 }
 

@@ -22,7 +22,7 @@ The CI build disables code signing, so it verifies compilation but does not crea
 
 ## User Dictionary
 
-GermanCards does not ship a third-party dictionary. Generated cards are stored as the user's own dictionary. On devices where iCloud Drive is available for the app, the dictionary is mirrored to `GermanCardsDictionary.json` in the app's iCloud documents container.
+GermanCards does not ship a third-party dictionary. Generated cards are stored as the user's own local dictionary. Use Settings to export or import `GermanCardsDictionary.json` through Files, AirDrop, Git, or your own cloud storage.
 
 
 ## Local Signing
