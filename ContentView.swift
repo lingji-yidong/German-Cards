@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  GermanCards
 //
-//  Created by 曲游溪 on 19/5/26.
+//  Created by lingji-yidong on 19/5/26.
 //
 
 import SwiftUI
