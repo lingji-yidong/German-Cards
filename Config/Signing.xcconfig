@@ -6,3 +6,9 @@ DEVELOPMENT_TEAM =
 PRODUCT_BUNDLE_IDENTIFIER = uk.habseligkeiten.GermanCards
 
 #include? "Signing.local.xcconfig"
+
+// Cross-platform build support. Personal signing still belongs in Signing.local.xcconfig.
+SUPPORTED_PLATFORMS = iphoneos iphonesimulator macosx
+SUPPORTS_MACCATALYST = YES
+DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = NO
+CODE_SIGN_ENTITLEMENTS = GermanCards.entitlements

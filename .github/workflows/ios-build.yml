@@ -1,4 +1,4 @@
-name: iOS Build
+name: Apple Builds
 
 on:
   push:
@@ -8,8 +8,18 @@ on:
 
 jobs:
   build:
-    name: Build GermanCards
+    name: Build GermanCards (${{ matrix.destination_name }})
     runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - destination_name: iOS
+            destination: generic/platform=iOS
+            result_bundle: build/GermanCards-iOS.xcresult
+          - destination_name: Mac Catalyst
+            destination: generic/platform=macOS,variant=Mac Catalyst
+            result_bundle: build/GermanCards-MacCatalyst.xcresult
 
     steps:
       - name: Checkout
@@ -37,8 +47,8 @@ jobs:
             -project GermanCards.xcodeproj \
             -scheme GermanCards \
             -configuration Debug \
-            -destination 'generic/platform=iOS' \
-            -resultBundlePath build/GermanCards.xcresult \
+            -destination '${{ matrix.destination }}' \
+            -resultBundlePath '${{ matrix.result_bundle }}' \
             CODE_SIGNING_ALLOWED=NO \
             build | tee build.log
 
@@ -46,8 +56,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: xcode-build-diagnostics
+          name: xcode-build-diagnostics-${{ matrix.destination_name }}
           path: |
             build.log
-            build/GermanCards.xcresult
+            build/*.xcresult
           if-no-files-found: ignore
