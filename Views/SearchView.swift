@@ -12,6 +12,8 @@ struct SearchView: View {
     @State private var errorMessage: String?
     @State private var isLoading = false
     @State private var deckIndex = 0
+    @State private var suggestion: WordSuggestion?
+    @FocusState private var isSearchFocused: Bool
 
     private let client = LLMWordClient()
 
@@ -28,6 +30,8 @@ struct SearchView: View {
                 .padding(18)
             }
             .background(AppTheme.background)
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture { isSearchFocused = false }
             .navigationTitle("Cards")
         }
     }
@@ -37,9 +41,23 @@ struct SearchView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
             TextField("Generate a German word card", text: $query)
+                .focused($isSearchFocused)
                 .textInputAutocapitalization(.words)
                 .submitLabel(.search)
                 .onSubmit { Task { await search() } }
+            if !query.isEmpty {
+                Button {
+                    query = ""
+                    suggestion = nil
+                    errorMessage = nil
+                    selectedWord = nil
+                    isSearchFocused = true
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
             Button {
                 Task { await search() }
             } label: {
@@ -80,6 +98,8 @@ struct SearchView: View {
             ProgressView("Generating card...")
                 .frame(maxWidth: .infinity)
                 .padding(.top, 80)
+        } else if let suggestion {
+            suggestionView(suggestion)
         } else if let errorMessage {
             ContentUnavailableView("Lookup failed", systemImage: "exclamationmark.triangle", description: Text(errorMessage))
         } else if let selectedWord {
@@ -95,6 +115,41 @@ struct SearchView: View {
         }
     }
 
+    private func suggestionView(_ suggestion: WordSuggestion) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label("檢查拼寫", systemImage: "text.magnifyingglass")
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.orange)
+            Text(suggestion.message)
+                .font(.subheadline)
+                .foregroundStyle(AppTheme.primaryText)
+            HStack(spacing: 10) {
+                if let suggestedWord = suggestion.suggestedWord, !suggestedWord.isEmpty {
+                    Button {
+                        query = suggestedWord
+                        self.suggestion = nil
+                        Task { await search() }
+                    } label: {
+                        Label("使用 \(suggestedWord)", systemImage: "arrow.turn.down.right")
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                Button {
+                    self.suggestion = nil
+                    isSearchFocused = true
+                } label: {
+                    Text("修改")
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(AppTheme.elevatedSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(AppTheme.separator))
+    }
+
     private var emptyDictionary: some View {
         ContentUnavailableView(
             "Start your own dictionary",
@@ -108,7 +163,9 @@ struct SearchView: View {
         let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !term.isEmpty else { return }
 
+        isSearchFocused = false
         errorMessage = nil
+        suggestion = nil
         if let cached = store.findCached(term) {
             selectedWord = cached
             return
@@ -121,12 +178,31 @@ struct SearchView: View {
             let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
             let config = LLMConfiguration(provider: provider, baseURL: baseURL, model: model, apiKey: apiKey)
             let result = try await client.fetchWordInfo(word: term, configuration: config)
+            guard result.isProbablyValid else {
+                suggestion = WordSuggestion(originalWord: term, suggestedWord: result.suggestedWord, confidence: result.confidence)
+                selectedWord = nil
+                return
+            }
             selectedWord = result
             store.save(result)
             deckIndex = 0
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+}
+
+
+private struct WordSuggestion: Equatable {
+    let originalWord: String
+    let suggestedWord: String?
+    let confidence: Double?
+
+    var message: String {
+        if let suggestedWord, !suggestedWord.isEmpty {
+            return "‘\(originalWord)’ 看起來不像穩定的德語詞。你是不是想查 ‘\(suggestedWord)’？"
+        }
+        return "‘\(originalWord)’ 看起來不像穩定的德語詞。請檢查拼寫後再生成卡片。"
     }
 }
 

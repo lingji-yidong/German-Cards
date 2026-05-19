@@ -49,6 +49,7 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     var id: String { word.lowercased() }
     let word: String
     let meaning: String
+    let englishMeaning: String?
     let partOfSpeech: String
     let gender: GrammaticalGender
     let pluralForm: String
@@ -57,10 +58,17 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     let exampleTranslation: String
     let referenceSource: String
     let notes: [String]
+    let isValidGermanWord: Bool?
+    let suggestedWord: String?
+    let confidence: Double?
     let timestamp: TimeInterval
 
     var displayArticle: String {
         gender == .none ? "" : gender.rawValue
+    }
+
+    var isProbablyValid: Bool {
+        isValidGermanWord ?? true
     }
 }
 

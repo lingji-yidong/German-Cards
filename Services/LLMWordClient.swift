@@ -5,6 +5,7 @@ enum WordLookupError: LocalizedError {
     case invalidURL
     case emptyResponse
     case decodingFailed
+    case invalidWordSuggestion(String?)
 
     var errorDescription: String? {
         switch self {
@@ -16,6 +17,11 @@ enum WordLookupError: LocalizedError {
             return "LLM 沒有返回內容。"
         case .decodingFailed:
             return "無法解析 LLM 返回的卡片 JSON。"
+        case .invalidWordSuggestion(let suggestion):
+            if let suggestion, !suggestion.isEmpty {
+                return "這看起來不像有效德語詞。你是不是想查：\(suggestion)？"
+            }
+            return "這看起來不像有效德語詞，請檢查拼寫。"
         }
     }
 }
@@ -24,12 +30,14 @@ final class LLMWordClient {
     func fetchWordInfo(word: String, configuration: LLMConfiguration) async throws -> GermanWordData {
         guard configuration.isUsable else { throw WordLookupError.missingConfiguration }
 
+        let result: GermanWordData
         switch configuration.provider {
         case .gemini:
-            return try await fetchFromGemini(word: word, configuration: configuration)
+            result = try await fetchFromGemini(word: word, configuration: configuration)
         case .openAICompatible, .custom:
-            return try await fetchFromChatCompletions(word: word, configuration: configuration)
+            result = try await fetchFromChatCompletions(word: word, configuration: configuration)
         }
+        return applySource("LLM · \(configuration.model)", to: result)
     }
 
     private func fetchFromChatCompletions(word: String, configuration: LLMConfiguration) async throws -> GermanWordData {
@@ -100,6 +108,7 @@ final class LLMWordClient {
             decoded = GermanWordData(
                 word: fallbackWord,
                 meaning: decoded.meaning,
+                englishMeaning: decoded.englishMeaning,
                 partOfSpeech: decoded.partOfSpeech,
                 gender: decoded.gender,
                 pluralForm: decoded.pluralForm,
@@ -108,21 +117,48 @@ final class LLMWordClient {
                 exampleTranslation: decoded.exampleTranslation,
                 referenceSource: decoded.referenceSource,
                 notes: decoded.notes,
+                isValidGermanWord: decoded.isValidGermanWord,
+                suggestedWord: decoded.suggestedWord,
+                confidence: decoded.confidence,
                 timestamp: decoded.timestamp
             )
         }
         return decoded
     }
 
+
+    private func applySource(_ source: String, to data: GermanWordData) -> GermanWordData {
+        GermanWordData(
+            word: data.word,
+            meaning: data.meaning,
+            englishMeaning: data.englishMeaning,
+            partOfSpeech: data.partOfSpeech,
+            gender: data.gender,
+            pluralForm: data.pluralForm,
+            declensionTable: data.declensionTable,
+            exampleSentence: data.exampleSentence,
+            exampleTranslation: data.exampleTranslation,
+            referenceSource: source,
+            notes: data.notes,
+            isValidGermanWord: data.isValidGermanWord,
+            suggestedWord: data.suggestedWord,
+            confidence: data.confidence,
+            timestamp: data.timestamp
+        )
+    }
+
     private var systemPrompt: String {
         """
         Return only strict JSON for a German vocabulary card. Fields:
-        word, meaning, partOfSpeech, gender ("der", "die", "das", "none"), pluralForm,
+        word, meaning, englishMeaning, partOfSpeech, gender ("der", "die", "das", "none"), pluralForm,
         declensionTable [{caseName, singular, plural}],
-        exampleSentence, exampleTranslation, referenceSource, notes [string].
-        Use Simplified Chinese for meaning and exampleTranslation. Prefer conservative grammar.
+        exampleSentence, exampleTranslation, referenceSource, notes [string],
+        isValidGermanWord, suggestedWord, confidence.
+        First validate the user's input. If it is misspelled, not German, or too ambiguous, set isValidGermanWord=false, put the most likely corrected German word in suggestedWord, set confidence 0..1, and do not invent a full card.
+        Use Traditional Chinese consistently for meaning, exampleTranslation, and notes. Put an English gloss in englishMeaning.
+        Use short, conservative notes in Traditional Chinese. Do not mix languages in notes except German examples.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
-        Mention uncertainty plainly when a form should be verified in an authoritative dictionary.
+        Mention uncertainty plainly in Traditional Chinese when a form should be verified in an authoritative dictionary.
         """
     }
 }
@@ -130,6 +166,7 @@ final class LLMWordClient {
 private struct LLMWordPayload: Decodable {
     let word: String?
     let meaning: String?
+    let englishMeaning: String?
     let partOfSpeech: String?
     let gender: String?
     let pluralForm: String?
@@ -138,11 +175,15 @@ private struct LLMWordPayload: Decodable {
     let exampleTranslation: String?
     let referenceSource: String?
     let notes: [String]?
+    let isValidGermanWord: Bool?
+    let suggestedWord: String?
+    let confidence: Double?
 
     func toGermanWordData() -> GermanWordData {
         GermanWordData(
             word: word ?? "",
             meaning: meaning ?? "-",
+            englishMeaning: englishMeaning,
             partOfSpeech: partOfSpeech ?? "-",
             gender: GrammaticalGender(rawValue: gender ?? "none") ?? .none,
             pluralForm: pluralForm ?? "-",
@@ -151,6 +192,9 @@ private struct LLMWordPayload: Decodable {
             exampleTranslation: exampleTranslation ?? "-",
             referenceSource: referenceSource ?? "LLM generated",
             notes: notes ?? [],
+            isValidGermanWord: isValidGermanWord,
+            suggestedWord: suggestedWord,
+            confidence: confidence,
             timestamp: Date().timeIntervalSince1970
         )
     }

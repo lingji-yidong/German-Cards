@@ -1,7 +1,9 @@
 import SwiftUI
+import AVFoundation
 
 struct WordCardView: View {
     let data: GermanWordData
+    private static let speechSynthesizer = AVSpeechSynthesizer()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -48,6 +50,24 @@ struct WordCardView: View {
                         .foregroundStyle(AppTheme.primaryText)
                         .minimumScaleFactor(0.72)
                         .lineLimit(1)
+                        .textSelection(.enabled)
+                    Button {
+                        speak(data.word)
+                    } label: {
+                        Image(systemName: "speaker.wave.2")
+                            .font(.title3.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(data.gender.tint)
+                    .accessibilityLabel("朗讀德語詞")
+                }
+
+                if let englishMeaning = data.englishMeaning, !englishMeaning.isEmpty {
+                    Text("English: \(englishMeaning)")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(AppTheme.secondaryText)
+                        .multilineTextAlignment(.center)
+                        .textSelection(.enabled)
                 }
 
                 if data.pluralForm != "-" {
@@ -61,6 +81,7 @@ struct WordCardView: View {
                 .font(.title3.weight(.medium))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(AppTheme.primaryText)
+                .textSelection(.enabled)
         }
         .padding(22)
         .background(
@@ -126,6 +147,7 @@ struct WordCardView: View {
             Text(data.exampleSentence)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
+                .textSelection(.enabled)
             Text(data.exampleTranslation)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -133,6 +155,16 @@ struct WordCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(20)
         .background(AppTheme.softSurface)
+    }
+
+    private func speak(_ text: String) {
+        if Self.speechSynthesizer.isSpeaking {
+            Self.speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "de-DE")
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9
+        Self.speechSynthesizer.speak(utterance)
     }
 
     @ViewBuilder
