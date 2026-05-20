@@ -16,25 +16,32 @@ struct SearchView: View {
     @State private var normalizedLookupMessage: String?
     @State private var suggestion: WordSuggestion?
     @FocusState private var isSearchFocused: Bool
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private let client = LLMWordClient()
+    private let activeCardScrollID = "active-card"
 
     private var deck: [GermanWordData] { store.history }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    searchBar
-                    dictionarySummary
-                    normalizedLookupBanner
-                    statusContent
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 18) {
+                        searchBar
+                        dictionarySummary
+                        normalizedLookupBanner
+                        statusContent {
+                            scrollActiveCard(with: proxy)
+                        }
+                        .id(activeCardScrollID)
+                    }
+                    .padding(18)
                 }
-                .padding(18)
+                .background(AppTheme.background)
+                .scrollDismissesKeyboard(.interactively)
+                .onTapGesture { isSearchFocused = false }
             }
-            .background(AppTheme.background)
-            .scrollDismissesKeyboard(.interactively)
-            .onTapGesture { isSearchFocused = false }
             .navigationTitle("Cards")
             .sheet(isPresented: $showingLibrary) {
                 CardLibraryView(store: store)
@@ -124,7 +131,7 @@ struct SearchView: View {
     }
 
     @ViewBuilder
-    private var statusContent: some View {
+    private func statusContent(onCardChanged: @escaping () -> Void) -> some View {
         if isLoading {
             ProgressView("Generating card...")
                 .frame(maxWidth: .infinity)
@@ -137,10 +144,11 @@ struct SearchView: View {
             CardDeckView(
                 deck: [selectedWord],
                 index: .constant(0),
-                onClearSelection: { self.selectedWord = nil }
+                onClearSelection: { self.selectedWord = nil },
+                onCardChanged: onCardChanged
             )
         } else if !deck.isEmpty {
-            CardDeckView(deck: deck, index: $deckIndex, onClearSelection: nil)
+            CardDeckView(deck: deck, index: $deckIndex, onClearSelection: nil, onCardChanged: onCardChanged)
         } else {
             emptyDictionary
         }
@@ -234,6 +242,15 @@ struct SearchView: View {
             normalizedLookupMessage = nil
         }
     }
+
+    private func scrollActiveCard(with proxy: ScrollViewProxy) {
+        guard horizontalSizeClass == .compact else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            withAnimation(.spring(response: 0.36, dampingFraction: 0.88)) {
+                proxy.scrollTo(activeCardScrollID, anchor: .top)
+            }
+        }
+    }
 }
 
 
@@ -254,6 +271,7 @@ private struct CardDeckView: View {
     let deck: [GermanWordData]
     @Binding var index: Int
     let onClearSelection: (() -> Void)?
+    let onCardChanged: () -> Void
     @State private var dragOffset: CGSize = .zero
     @State private var isHorizontalDrag = false
 
@@ -348,10 +366,12 @@ private struct CardDeckView: View {
     private func next() {
         guard !deck.isEmpty else { return }
         index = (index + 1) % deck.count
+        onCardChanged()
     }
 
     private func previous() {
         guard !deck.isEmpty else { return }
         index = (index - 1 + deck.count) % deck.count
+        onCardChanged()
     }
 }

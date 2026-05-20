@@ -55,119 +55,147 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    Picker("Appearance", selection: appearance) {
-                        ForEach(AppAppearance.allCases) { option in
-                            Text(option.title).tag(option)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    SettingsSection(
+                        title: "Display",
+                        footer: "Appearance follows the system by default. Grammar copy can be switched independently from the device language."
+                    ) {
+                        SettingsRow("Appearance") {
+                            Picker("Appearance", selection: appearance) {
+                                ForEach(AppAppearance.allCases) { option in
+                                    Text(option.title).tag(option)
+                                }
+                            }
+                            .labelsHidden()
+                        }
+                        SettingsDivider()
+                        SettingsRow("Grammar Language") {
+                            Picker("Grammar Language", selection: grammarLanguage) {
+                                ForEach(GrammarLanguage.allCases) { option in
+                                    Text(option.title).tag(option)
+                                }
+                            }
+                            .labelsHidden()
                         }
                     }
-                    Picker("Grammar Language", selection: grammarLanguage) {
-                        ForEach(GrammarLanguage.allCases) { option in
-                            Text(option.title).tag(option)
+
+                    SettingsSection(
+                        title: "LLM Provider",
+                        footer: "OpenAI-compatible 和 Custom 會呼叫 {Base URL}/chat/completions。Gemini 會呼叫 {Base URL}/models/{model}:generateContent。"
+                    ) {
+                        SettingsRow("Provider") {
+                            Picker("Provider", selection: provider) {
+                                ForEach(LLMProvider.allCases) { provider in
+                                    Text(provider.rawValue).tag(provider)
+                                }
+                            }
+                            .labelsHidden()
+                        }
+                        SettingsDivider()
+                        SettingsRow("Base URL") {
+                            TextField("Base URL", text: $baseURL)
+                                .germanCardsAutocapitalization(.never)
+                                .germanCardsURLKeyboard()
+                                .textFieldStyle(.roundedBorder)
+                        }
+                        SettingsDivider()
+                        SettingsRow("Model") {
+                            TextField("Model", text: $model)
+                                .germanCardsAutocapitalization(.never)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                        SettingsDivider()
+                        SettingsRow("API Key") {
+                            SecureField("API Key", text: $apiKey)
+                                .germanCardsAutocapitalization(.never)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                        SettingsDivider()
+                        SettingsActionRow {
+                            Button {
+                                saved = true
+                            } label: {
+                                Label(saved ? "Saved" : "Save Configuration", systemImage: saved ? "checkmark.circle.fill" : "square.and.arrow.down")
+                            }
                         }
                     }
-                } header: {
-                    Text("Display")
-                } footer: {
-                    Text("Appearance follows the system by default. Grammar copy can be switched independently from the device language.")
-                }
 
-                Section {
-                    Picker("Provider", selection: provider) {
-                        ForEach(LLMProvider.allCases) { provider in
-                            Text(provider.rawValue).tag(provider)
-                        }
-                    }
-                    TextField("Base URL", text: $baseURL)
-                        .germanCardsAutocapitalization(.never)
-                        .germanCardsURLKeyboard()
-                    TextField("Model", text: $model)
-                        .germanCardsAutocapitalization(.never)
-                    SecureField("API Key", text: $apiKey)
-                        .germanCardsAutocapitalization(.never)
-                    Button {
-                        saved = true
-                    } label: {
-                        Label(saved ? "Saved" : "Save Configuration", systemImage: saved ? "checkmark.circle.fill" : "square.and.arrow.down")
-                    }
-                } header: {
-                    Text("LLM Provider")
-                } footer: {
-                    Text("OpenAI-compatible 和 Custom 會呼叫 {Base URL}/chat/completions。Gemini 會呼叫 {Base URL}/models/{model}:generateContent。")
-                }
-
-                Section {
-                    Label("User dictionary", systemImage: "folder")
-                    Text("Generated cards are saved locally. Use Export and Import to sync through Files, AirDrop, Git, or your own cloud storage.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    Text("No bundled third-party dictionary is shipped. Your word list starts from zero and grows only from cards you create.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    Button {
-                        exportDictionary()
-                    } label: {
-                        Label("Export Dictionary", systemImage: "square.and.arrow.up")
-                    }
-                    .disabled(store.history.isEmpty)
-                    Button {
-                        isImportingDictionary = true
-                    } label: {
-                        Label("Import Dictionary", systemImage: "square.and.arrow.down")
-                    }
-                    if let dictionaryTransferStatus {
-                        Text(dictionaryTransferStatus)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    Button {
-                        Task { await renewExistingCards(forceAll: false) }
-                    } label: {
-                        Label(isRenewing ? "Renewing Cards" : "Renew Missing Fields", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(isRenewing || cardsNeedingRenewal.isEmpty)
-                    Button(role: .destructive) {
-                        showingForceRenewConfirmation = true
-                    } label: {
-                        Label("Force Renew All", systemImage: "exclamationmark.arrow.triangle.2.circlepath")
-                    }
-                    .disabled(isRenewing || store.history.isEmpty)
-                    Text("需要補資料的卡片：\(cardsNeedingRenewal.count) / \(store.count)")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    if let renewStatus {
-                        Text(renewStatus)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Text("Dictionary")
-                }
-
-                Section {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text("Generated Cards")
+                    SettingsSection(title: "Dictionary") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("User dictionary", systemImage: "folder")
                                 .font(.subheadline.weight(.semibold))
-                            Spacer()
-                            Text("\(store.count)")
-                                .font(.title3.weight(.black).monospacedDigit())
-                                .foregroundStyle(AppTheme.brand)
+                            Text("Generated cards are saved locally. Use Export and Import to sync through Files, AirDrop, Git, or your own cloud storage.")
+                            Text("No bundled third-party dictionary is shipped. Your word list starts from zero and grows only from cards you create.")
                         }
-                        CEFRProgressRow(level: "A1", target: 600, current: store.count)
-                        CEFRProgressRow(level: "A2", target: 1300, current: store.count)
-                        CEFRProgressRow(level: "B1", target: 2500, current: store.count)
-                        CEFRProgressRow(level: "B2", target: 5000, current: store.count)
-                        CEFRProgressRow(level: "C1", target: 8000, current: store.count)
+                        .font(.footnote)
+                        .foregroundStyle(AppTheme.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        SettingsDivider()
+                        SettingsActionRow {
+                            Button {
+                                exportDictionary()
+                            } label: {
+                                Label("Export Dictionary", systemImage: "square.and.arrow.up")
+                            }
+                            .disabled(store.history.isEmpty)
+                            Button {
+                                isImportingDictionary = true
+                            } label: {
+                                Label("Import Dictionary", systemImage: "square.and.arrow.down")
+                            }
+                        }
+                        if let dictionaryTransferStatus {
+                            SettingsStatusText(dictionaryTransferStatus)
+                        }
+                        SettingsDivider()
+                        SettingsActionRow {
+                            Button {
+                                Task { await renewExistingCards(forceAll: false) }
+                            } label: {
+                                Label(isRenewing ? "Renewing Cards" : "Renew Missing Fields", systemImage: "arrow.clockwise")
+                            }
+                            .disabled(isRenewing || cardsNeedingRenewal.isEmpty)
+                            Button(role: .destructive) {
+                                showingForceRenewConfirmation = true
+                            } label: {
+                                Label("Force Renew All", systemImage: "exclamationmark.arrow.triangle.2.circlepath")
+                            }
+                            .disabled(isRenewing || store.history.isEmpty)
+                        }
+                        SettingsStatusText("需要補資料的卡片：\(cardsNeedingRenewal.count) / \(store.count)")
+                        if let renewStatus {
+                            SettingsStatusText(renewStatus)
+                        }
                     }
-                    .padding(.vertical, 4)
-                } header: {
-                    Text("CEFR Vocabulary Goals")
-                } footer: {
-                    Text("Vocabulary targets vary by course and exam. Use these as rough planning numbers for your own dictionary.")
+
+                    SettingsSection(
+                        title: "CEFR Vocabulary Goals",
+                        footer: "Vocabulary targets vary by course and exam. Use these as rough planning numbers for your own dictionary."
+                    ) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(alignment: .firstTextBaseline) {
+                                Text("Generated Cards")
+                                    .font(.subheadline.weight(.semibold))
+                                Spacer()
+                                Text("\(store.count)")
+                                    .font(.title3.weight(.black).monospacedDigit())
+                                    .foregroundStyle(AppTheme.brand)
+                            }
+                            CEFRProgressRow(level: "A1", target: 600, current: store.count)
+                            CEFRProgressRow(level: "A2", target: 1300, current: store.count)
+                            CEFRProgressRow(level: "B1", target: 2500, current: store.count)
+                            CEFRProgressRow(level: "B2", target: 5000, current: store.count)
+                            CEFRProgressRow(level: "C1", target: 8000, current: store.count)
+                        }
+                    }
                 }
+                .frame(maxWidth: 760, alignment: .leading)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 18)
             }
+            .background(AppTheme.background)
             .navigationTitle("Settings")
             .fileExporter(
                 isPresented: $isExportingDictionary,
@@ -296,6 +324,117 @@ struct SettingsView: View {
     }
 }
 
+
+private struct SettingsSection<Content: View>: View {
+    let title: String
+    let footer: String?
+    let content: Content
+
+    init(title: String, footer: String? = nil, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.footer = footer
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(AppTheme.primaryText)
+            VStack(alignment: .leading, spacing: 12) {
+                content
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(14)
+            .background(AppTheme.elevatedSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.separator))
+            if let footer {
+                Text(footer)
+                    .font(.footnote)
+                    .foregroundStyle(AppTheme.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 2)
+            }
+        }
+    }
+}
+
+private struct SettingsRow<Content: View>: View {
+    let title: String
+    let content: Content
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    init(_ title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        if horizontalSizeClass == .compact {
+            VStack(alignment: .leading, spacing: 8) {
+                label
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        } else {
+            HStack(alignment: .firstTextBaseline, spacing: 18) {
+                label
+                    .frame(width: 150, alignment: .leading)
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    private var label: some View {
+        Text(title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(AppTheme.primaryText)
+    }
+}
+
+private struct SettingsActionRow<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 10) {
+                content
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                content
+            }
+        }
+        .buttonStyle(.bordered)
+    }
+}
+
+private struct SettingsDivider: View {
+    var body: some View {
+        Divider()
+            .overlay(AppTheme.separator)
+    }
+}
+
+private struct SettingsStatusText: View {
+    let text: String
+
+    init(_ text: String) {
+        self.text = text
+    }
+
+    var body: some View {
+        Text(text)
+            .font(.footnote)
+            .foregroundStyle(AppTheme.secondaryText)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
 
 private struct CEFRProgressRow: View {
     let level: String

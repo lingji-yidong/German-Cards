@@ -16,10 +16,13 @@ jobs:
         include:
           - destination_name: iOS
             destination: generic/platform=iOS
+            configuration: Debug
             result_bundle: build/GermanCards-iOS.xcresult
           - destination_name: Mac Catalyst
             destination: generic/platform=macOS,variant=Mac Catalyst
+            configuration: Release
             result_bundle: build/GermanCards-MacCatalyst.xcresult
+            package_desktop: true
 
     steps:
       - name: Checkout
@@ -46,11 +49,27 @@ jobs:
           xcodebuild \
             -project GermanCards.xcodeproj \
             -scheme GermanCards \
-            -configuration Debug \
+            -configuration '${{ matrix.configuration }}' \
             -destination '${{ matrix.destination }}' \
+            -derivedDataPath build/DerivedData \
             -resultBundlePath '${{ matrix.result_bundle }}' \
             CODE_SIGNING_ALLOWED=NO \
             build | tee build.log
+
+      - name: Package Mac Catalyst app
+        if: matrix.package_desktop == true
+        run: |
+          set -euo pipefail
+          APP_PATH="build/DerivedData/Build/Products/${{ matrix.configuration }}-maccatalyst/GermanCards.app"
+          ARTIFACT_DIR="build/artifacts"
+          mkdir -p "$ARTIFACT_DIR"
+          ditto -c -k --keepParent "$APP_PATH" "$ARTIFACT_DIR/GermanCards-macOS.zip"
+          hdiutil create \
+            -volname "GermanCards" \
+            -srcfolder "$APP_PATH" \
+            -ov \
+            -format UDZO \
+            "$ARTIFACT_DIR/GermanCards-macOS.dmg"
 
       - name: Upload build diagnostics
         if: always()
@@ -61,3 +80,13 @@ jobs:
             build.log
             build/*.xcresult
           if-no-files-found: ignore
+
+      - name: Upload Mac Catalyst app
+        if: matrix.package_desktop == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: GermanCards-macOS-unsigned
+          path: |
+            build/artifacts/GermanCards-macOS.zip
+            build/artifacts/GermanCards-macOS.dmg
+          if-no-files-found: error

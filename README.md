@@ -1,10 +1,22 @@
 # GermanCards
 
-SwiftUI iOS app for German vocabulary cards and grammar references.
+SwiftUI app for German vocabulary cards and grammar references.
+
+Cards can use the system speech synthesizer to read German words aloud for pronunciation practice.
+
+## Demo
+
+| iPhone | macOS |
+| --- | --- |
+| ![GermanCards mobile demo](docs/images/demo_mobile.png) | ![GermanCards desktop demo](docs/images/demo_desktop.png) |
+
+## Supported Platforms
+
+GermanCards supports iPhone and iPad, and can also run on macOS as a Mac Catalyst app. The same local user dictionary can be exported and imported across devices.
 
 ## CI Build
 
-This repo builds on GitHub Actions with `macos-15` and Xcode 16.x:
+This repo builds iOS and Mac Catalyst on GitHub Actions with `macos-15` and Xcode 16.x:
 
 ```bash
 xcodebuild \
@@ -16,7 +28,7 @@ xcodebuild \
   build
 ```
 
-The CI build disables code signing, so it verifies compilation but does not create an installable App Store archive.
+The workflow also creates an unsigned Mac Catalyst `.app` zip and `.dmg` artifact for desktop testing. These artifacts are not notarized App Store releases; macOS may require allowing the app manually from Privacy & Security.
 
 
 
