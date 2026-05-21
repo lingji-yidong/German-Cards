@@ -4,9 +4,13 @@ A SwiftUI vocabulary and grammar reference app for German learners. GermanCards 
 
 ## Preview
 
-| iPhone | macOS |
-| --- | --- |
-| ![GermanCards mobile demo](docs/images/demo_mobile.png) | ![GermanCards desktop demo](docs/images/demo_desktop.png) |
+### iPhone
+
+![GermanCards mobile demo](docs/images/demo_mobile.png)
+
+### macOS
+
+![GermanCards desktop demo](docs/images/demo_desktop.png)
 
 ## Highlights
 
