@@ -49,11 +49,23 @@ The GitHub Actions workflow builds a universal Mac Catalyst app with both `arm64
 - `GermanCards-macOS-universal.dmg` - drag-and-drop disk image
 - `GermanCards-macOS-universal.zip` - zipped `.app` bundle for quick testing
 
-Release builds use ad-hoc signing for the app bundle, but they are not Developer ID signed or notarized. On first launch, macOS may require approval from System Settings > Privacy & Security.
+Release builds use ad-hoc signing for the app bundle, but they are not Developer ID signed or notarized.
+
+### Opening on macOS
+
+Because the macOS package is not notarized, Gatekeeper may block the first launch. To open it:
+
+1. Install the app from the `.dmg`, `.pkg`, or `.zip` release asset.
+2. Try opening `GermanCards.app` once.
+3. Open System Settings > Privacy & Security.
+4. Find the blocked GermanCards message and choose Open Anyway.
+5. Confirm the prompt to launch the app.
+
+Only do this if you trust the source code and the release asset you downloaded.
 
 ## Release Disclaimer
 
-Release builds are provided for convenience only. They are distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, or any other damage arising from installation or use. Review the source code and build the app yourself if you need stronger trust guarantees.
+Release builds are provided for convenience only. They are ad-hoc signed, not Developer ID signed, not notarized by Apple, and not reviewed by Apple. The software is distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, privacy consequences, or any other damage arising from installation or use. You are responsible for deciding whether to run the app, reviewing the source code, and building it yourself if you need stronger trust guarantees.
 
 ## Local Development
 
