@@ -34,6 +34,10 @@ The GitHub Actions workflow builds a universal Mac Catalyst app with both `arm64
 
 These builds are unsigned and not notarized. On first launch, macOS may require approval from System Settings > Privacy & Security.
 
+## Release Disclaimer
+
+Release builds are provided for convenience only. They are distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, or any other damage arising from installation or use. Review the source code and build the app yourself if you need stronger trust guarantees.
+
 ## Local Development
 
 Open the project in Xcode 16.4 or later:
@@ -85,3 +89,7 @@ cp Config/Signing.example.xcconfig Config/Signing.local.xcconfig
 ## Data Model
 
 GermanCards does not ship a third-party dictionary. Saved cards are stored as the user's own local dictionary and can be exported as `GermanCardsDictionary.json` from Settings.
+
+## License
+
+GermanCards is released under the MIT License. See [LICENSE](LICENSE).
