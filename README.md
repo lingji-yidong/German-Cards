@@ -12,12 +12,14 @@ A SwiftUI vocabulary and grammar reference app for German learners. GermanCards 
 <table align="center">
   <tr>
     <td align="center">
-      <img src="docs/images/demo_mobile.png" alt="GermanCards mobile demo" width="230">
+      <strong>iPhone / iOS</strong><br>
+      <img src="docs/images/demo_mobile.png" alt="GermanCards iPhone demo" width="230">
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="docs/images/demo_desktop.png" alt="GermanCards desktop demo" width="520">
+      <strong>macOS / Mac Catalyst</strong><br>
+      <img src="docs/images/demo_desktop.png" alt="GermanCards macOS demo" width="520">
     </td>
   </tr>
 </table>
