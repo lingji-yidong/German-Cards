@@ -7,7 +7,10 @@ struct SettingsView: View {
     @AppStorage("llm_base_url") private var baseURL = LLMProvider.openAICompatible.defaultBaseURL
     @AppStorage("llm_model") private var model = LLMProvider.openAICompatible.defaultModel
     @AppStorage("llm_api_key") private var apiKey = ""
-    @State private var saved = false
+    @State private var draftBaseURL = ""
+    @State private var draftModel = ""
+    @State private var draftAPIKey = ""
+    @State private var configurationStatus: String?
     @State private var isRenewing = false
     @State private var renewStatus: String?
     @State private var showingForceRenewConfirmation = false
@@ -43,12 +46,13 @@ struct SettingsView: View {
             get: { LLMProvider(rawValue: providerRaw) ?? .openAICompatible },
             set: { newValue in
                 providerRaw = newValue.rawValue
-                if baseURL.isEmpty || baseURL == LLMProvider.openAICompatible.defaultBaseURL || baseURL == LLMProvider.gemini.defaultBaseURL {
-                    baseURL = newValue.defaultBaseURL
+                if draftBaseURL.isEmpty || draftBaseURL == LLMProvider.openAICompatible.defaultBaseURL || draftBaseURL == LLMProvider.gemini.defaultBaseURL {
+                    draftBaseURL = newValue.defaultBaseURL
                 }
-                if model.isEmpty || model == LLMProvider.openAICompatible.defaultModel || model == LLMProvider.gemini.defaultModel {
-                    model = newValue.defaultModel
+                if draftModel.isEmpty || draftModel == LLMProvider.openAICompatible.defaultModel || draftModel == LLMProvider.gemini.defaultModel {
+                    draftModel = newValue.defaultModel
                 }
+                configurationStatus = nil
             }
         )
     }
@@ -94,30 +98,36 @@ struct SettingsView: View {
                         }
                         SettingsDivider()
                         SettingsRow("Base URL") {
-                            TextField("Base URL", text: $baseURL)
+                            TextField("Base URL", text: $draftBaseURL)
                                 .germanCardsAutocapitalization(.never)
                                 .germanCardsURLKeyboard()
                                 .textFieldStyle(.roundedBorder)
+                                .onChange(of: draftBaseURL) { _, _ in configurationStatus = nil }
                         }
                         SettingsDivider()
                         SettingsRow("Model") {
-                            TextField("Model", text: $model)
+                            TextField("Model", text: $draftModel)
                                 .germanCardsAutocapitalization(.never)
                                 .textFieldStyle(.roundedBorder)
+                                .onChange(of: draftModel) { _, _ in configurationStatus = nil }
                         }
                         SettingsDivider()
                         SettingsRow("API Key") {
-                            SecureField("API Key", text: $apiKey)
+                            SecureField("API Key", text: $draftAPIKey)
                                 .germanCardsAutocapitalization(.never)
                                 .textFieldStyle(.roundedBorder)
+                                .onChange(of: draftAPIKey) { _, _ in configurationStatus = nil }
                         }
                         SettingsDivider()
                         SettingsActionRow {
                             Button {
-                                saved = true
+                                saveConfiguration()
                             } label: {
-                                Label(saved ? "Saved" : "Save Configuration", systemImage: saved ? "checkmark.circle.fill" : "square.and.arrow.down")
+                                Label("Save Configuration", systemImage: "square.and.arrow.down")
                             }
+                        }
+                        if let configurationStatus {
+                            SettingsStatusText(configurationStatus)
                         }
                     }
 
@@ -213,6 +223,7 @@ struct SettingsView: View {
             .fileImporter(isPresented: $isImportingDictionary, allowedContentTypes: [.json]) { result in
                 importDictionary(result)
             }
+            .onAppear(perform: loadConfigurationDrafts)
             .confirmationDialog(
                 "Force renew all cards?",
                 isPresented: $showingForceRenewConfirmation,
@@ -226,6 +237,25 @@ struct SettingsView: View {
                 Text("This will call the LLM once for every saved card, even cards that already have the current fields.")
             }
         }
+    }
+
+
+    private func loadConfigurationDrafts() {
+        draftBaseURL = baseURL
+        draftModel = model
+        draftAPIKey = apiKey
+    }
+
+    private func saveConfiguration() {
+        let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
+        let normalizedBaseURL = LLMConfiguration.normalizedBaseURL(draftBaseURL, provider: provider)
+        baseURL = normalizedBaseURL
+        model = draftModel.trimmingCharacters(in: .whitespacesAndNewlines)
+        apiKey = draftAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        draftBaseURL = baseURL
+        draftModel = model
+        draftAPIKey = apiKey
+        configurationStatus = "Configuration saved: \(baseURL)"
     }
 
     private func exportDictionary() {

@@ -140,9 +140,50 @@ struct LLMConfiguration {
     let model: String
     let apiKey: String
 
+    var normalizedBaseURL: String {
+        Self.normalizedBaseURL(baseURL, provider: provider)
+    }
+
     var isUsable: Bool {
-        !baseURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !normalizedBaseURL.isEmpty &&
         !model.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
         !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    static func normalizedBaseURL(_ rawValue: String, provider: LLMProvider) -> String {
+        var value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return "" }
+        if !value.contains("://") {
+            value = "https://\(value)"
+        }
+        while value.hasSuffix("/") {
+            value.removeLast()
+        }
+
+        guard var components = URLComponents(string: value), components.scheme != nil, components.host != nil else {
+            return value
+        }
+        let cleanedPath = components.path
+            .split(separator: "/")
+            .joined(separator: "/")
+        components.path = cleanedPath.isEmpty ? "" : "/\(cleanedPath)"
+
+        switch provider {
+        case .openAICompatible, .custom:
+            if components.path.hasSuffix("/chat/completions") {
+                components.path.removeLast("/chat/completions".count)
+            }
+            if !components.path.hasSuffix("/v1") {
+                components.path += "/v1"
+            }
+        case .gemini:
+            break
+        }
+
+        guard var normalized = components.url?.absoluteString else { return value }
+        while normalized.hasSuffix("/") {
+            normalized.removeLast()
+        }
+        return normalized
     }
 }

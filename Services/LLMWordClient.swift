@@ -41,7 +41,7 @@ final class LLMWordClient {
     }
 
     private func fetchFromChatCompletions(word: String, configuration: LLMConfiguration) async throws -> GermanWordData {
-        let endpoint = try endpointURL(baseURL: configuration.baseURL, path: "chat/completions")
+        let endpoint = try endpointURL(baseURL: configuration.normalizedBaseURL, path: "chat/completions")
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.addValue("Bearer \(configuration.apiKey)", forHTTPHeaderField: "Authorization")
@@ -67,7 +67,7 @@ final class LLMWordClient {
     }
 
     private func fetchFromGemini(word: String, configuration: LLMConfiguration) async throws -> GermanWordData {
-        let endpoint = try endpointURL(baseURL: configuration.baseURL, path: "models/\(configuration.model):generateContent")
+        let endpoint = try endpointURL(baseURL: configuration.normalizedBaseURL, path: "models/\(configuration.model):generateContent")
         guard var components = URLComponents(url: endpoint, resolvingAgainstBaseURL: false) else {
             throw WordLookupError.invalidURL
         }
