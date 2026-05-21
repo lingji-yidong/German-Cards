@@ -1,22 +1,48 @@
 # GermanCards
 
-SwiftUI app for German vocabulary cards and grammar references.
+A SwiftUI vocabulary and grammar reference app for German learners. GermanCards keeps a personal word-card library on device, supports spoken German pronunciation through the system speech synthesizer, and runs on iPhone, iPad, and macOS through Mac Catalyst.
 
-Cards can use the system speech synthesizer to read German words aloud for pronunciation practice.
-
-## Demo
+## Preview
 
 | iPhone | macOS |
 | --- | --- |
 | ![GermanCards mobile demo](docs/images/demo_mobile.png) | ![GermanCards desktop demo](docs/images/demo_desktop.png) |
 
-## Supported Platforms
+## Highlights
 
-GermanCards supports iPhone and iPad, and can also run on macOS as a Mac Catalyst app. The same local user dictionary can be exported and imported across devices.
+- Build German vocabulary cards with notes, examples, gender, plural forms, and related grammar context.
+- Search and review saved cards from a local personal dictionary.
+- Listen to German pronunciation using Apple system voices.
+- Export and import `GermanCardsDictionary.json` for backup, AirDrop transfer, Git storage, or cloud sync.
+- Use the same SwiftUI codebase across iOS, iPadOS, and macOS.
 
-## CI Build
+## Platforms
 
-This repo builds iOS and Mac Catalyst on GitHub Actions with `macos-15` and Xcode 16.x:
+GermanCards supports:
+
+- iPhone and iPad on iOS/iPadOS 18 or later
+- macOS 15 or later as a Mac Catalyst app
+- Apple silicon and Intel Macs through the GitHub Actions universal macOS package
+
+## macOS Builds
+
+The GitHub Actions workflow builds a universal Mac Catalyst app with both `arm64` and `x86_64` slices. Each run uploads an unsigned artifact named `GermanCards-macOS-universal-unsigned` containing:
+
+- `GermanCards-macOS-universal.pkg` - installer package for `/Applications`
+- `GermanCards-macOS-universal.dmg` - drag-and-drop disk image
+- `GermanCards-macOS-universal.zip` - zipped `.app` bundle for quick testing
+
+These builds are unsigned and not notarized. On first launch, macOS may require approval from System Settings > Privacy & Security.
+
+## Local Development
+
+Open the project in Xcode 16.4 or later:
+
+```bash
+open GermanCards.xcodeproj
+```
+
+Build from the command line for iOS:
 
 ```bash
 xcodebuild \
@@ -28,21 +54,34 @@ xcodebuild \
   build
 ```
 
-The workflow also creates an unsigned Mac Catalyst `.app` zip and `.dmg` artifact for desktop testing. These artifacts are not notarized App Store releases; macOS may require allowing the app manually from Privacy & Security.
+Build a universal Mac Catalyst app locally:
 
+```bash
+xcodebuild \
+  -project GermanCards.xcodeproj \
+  -scheme GermanCards \
+  -configuration Release \
+  -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+  ARCHS='arm64 x86_64' \
+  ONLY_ACTIVE_ARCH=NO \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
 
+## App Icon
 
-## User Dictionary
+The app icon is managed through `Assets.xcassets/AppIcon.appiconset`. The Xcode project explicitly sets `CFBundleIconName` to `AppIcon` and enables standalone icon generation so Mac Catalyst builds include the icon assets expected by macOS.
 
-GermanCards does not ship a third-party dictionary. Generated cards are stored as the user's own local dictionary. Use Settings to export or import `GermanCardsDictionary.json` through Files, AirDrop, Git, or your own cloud storage.
+## Signing
 
-
-## Local Signing
-
-Personal signing values are kept out of git. For local iPhone installs, copy the example file and edit your team ID:
+Personal signing values stay out of git. For local device installs, copy the example config and add your Apple Developer Team ID:
 
 ```bash
 cp Config/Signing.example.xcconfig Config/Signing.local.xcconfig
 ```
 
-`Config/Signing.local.xcconfig` is ignored by git. Do not put private keys, provisioning profiles, or App Store Connect credentials in tracked files.
+`Config/Signing.local.xcconfig` is ignored by git. Do not commit private keys, provisioning profiles, App Store Connect credentials, or personal team identifiers.
+
+## Data Model
+
+GermanCards does not ship a third-party dictionary. Saved cards are stored as the user's own local dictionary and can be exported as `GermanCardsDictionary.json` from Settings.

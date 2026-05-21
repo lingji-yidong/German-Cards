@@ -18,10 +18,10 @@ jobs:
             destination: generic/platform=iOS
             configuration: Debug
             result_bundle: build/GermanCards-iOS.xcresult
-          - destination_name: Mac Catalyst
+          - destination_name: Universal Mac
             destination: generic/platform=macOS,variant=Mac Catalyst
             configuration: Release
-            result_bundle: build/GermanCards-MacCatalyst.xcresult
+            result_bundle: build/GermanCards-UniversalMac.xcresult
             package_desktop: true
 
     steps:
@@ -46,6 +46,11 @@ jobs:
       - name: Build
         run: |
           set -o pipefail
+          EXTRA_SETTINGS=()
+          if [ "${{ matrix.package_desktop }}" = "true" ]; then
+            EXTRA_SETTINGS+=(ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO)
+          fi
+
           xcodebuild \
             -project GermanCards.xcodeproj \
             -scheme GermanCards \
@@ -54,22 +59,47 @@ jobs:
             -derivedDataPath build/DerivedData \
             -resultBundlePath '${{ matrix.result_bundle }}' \
             CODE_SIGNING_ALLOWED=NO \
+            "${EXTRA_SETTINGS[@]}" \
             build | tee build.log
 
-      - name: Package Mac Catalyst app
+      - name: Package universal Mac installer
         if: matrix.package_desktop == true
         run: |
           set -euo pipefail
           APP_PATH="build/DerivedData/Build/Products/${{ matrix.configuration }}-maccatalyst/GermanCards.app"
           ARTIFACT_DIR="build/artifacts"
-          mkdir -p "$ARTIFACT_DIR"
-          ditto -c -k --keepParent "$APP_PATH" "$ARTIFACT_DIR/GermanCards-macOS.zip"
+          STAGING_DIR="build/pkg-root"
+          DMG_DIR="build/dmg-root"
+          COMPONENT_PKG="$ARTIFACT_DIR/GermanCards-component.pkg"
+          INSTALLER_PKG="$ARTIFACT_DIR/GermanCards-macOS-universal.pkg"
+
+          mkdir -p "$ARTIFACT_DIR" "$STAGING_DIR/Applications" "$DMG_DIR"
+          ditto "$APP_PATH" "$STAGING_DIR/Applications/GermanCards.app"
+          ditto -c -k --keepParent "$APP_PATH" "$ARTIFACT_DIR/GermanCards-macOS-universal.zip"
+
+          APP_BINARY="$APP_PATH/Contents/MacOS/GermanCards"
+          lipo -archs "$APP_BINARY"
+          lipo -verify_arch arm64 x86_64 "$APP_BINARY"
+
+          pkgbuild \
+            --root "$STAGING_DIR" \
+            --identifier "uk.habseligkeiten.GermanCards" \
+            --version "1.0" \
+            --install-location "/" \
+            "$COMPONENT_PKG"
+
+          productbuild \
+            --package "$COMPONENT_PKG" \
+            "$INSTALLER_PKG"
+
+          cp -R "$APP_PATH" "$DMG_DIR/GermanCards.app"
+          ln -s /Applications "$DMG_DIR/Applications"
           hdiutil create \
             -volname "GermanCards" \
-            -srcfolder "$APP_PATH" \
+            -srcfolder "$DMG_DIR" \
             -ov \
             -format UDZO \
-            "$ARTIFACT_DIR/GermanCards-macOS.dmg"
+            "$ARTIFACT_DIR/GermanCards-macOS-universal.dmg"
 
       - name: Upload build diagnostics
         if: always()
@@ -81,12 +111,13 @@ jobs:
             build/*.xcresult
           if-no-files-found: ignore
 
-      - name: Upload Mac Catalyst app
+      - name: Upload universal Mac package
         if: matrix.package_desktop == true
         uses: actions/upload-artifact@v4
         with:
-          name: GermanCards-macOS-unsigned
+          name: GermanCards-macOS-universal-unsigned
           path: |
-            build/artifacts/GermanCards-macOS.zip
-            build/artifacts/GermanCards-macOS.dmg
+            build/artifacts/GermanCards-macOS-universal.pkg
+            build/artifacts/GermanCards-macOS-universal.zip
+            build/artifacts/GermanCards-macOS-universal.dmg
           if-no-files-found: error

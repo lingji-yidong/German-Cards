@@ -18,14 +18,26 @@ final class WordStore: ObservableObject {
         let normalized = normalize(word)
         return history.first { card in
             normalize(card.word) == normalized ||
-            normalize(card.pluralForm) == normalized ||
+            matchesNounForm(card, normalized: normalized)
+        }
+    }
+
+    private func matchesNounForm(_ card: GermanWordData, normalized: String) -> Bool {
+        guard isNoun(card) else { return false }
+        return normalize(card.pluralForm) == normalized ||
             card.declensionTable.contains { row in
                 normalize(row.singular) == normalized || normalize(row.plural) == normalized
-            } ||
-            card.displayedVerbConjugation.contains { row in
-                normalize(row.form) == normalized
             }
-        }
+    }
+
+    private func isNoun(_ card: GermanWordData) -> Bool {
+        let partOfSpeech = card.partOfSpeech.lowercased()
+        return card.gender != .none ||
+            partOfSpeech.contains("noun") ||
+            partOfSpeech.contains("nomen") ||
+            partOfSpeech.contains("substantiv") ||
+            card.partOfSpeech.contains("名詞") ||
+            card.partOfSpeech.contains("名词")
     }
 
     func save(_ data: GermanWordData) {
