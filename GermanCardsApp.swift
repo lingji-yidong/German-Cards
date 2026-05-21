@@ -13,7 +13,7 @@ struct GermanCardsApp: App {
         WindowGroup {
             ContentView()
                 #if targetEnvironment(macCatalyst)
-                .frame(minWidth: 390, idealWidth: 430, maxWidth: 520, minHeight: 760, idealHeight: 860)
+                .frame(minWidth: 390, minHeight: 620)
                 #endif
         }
         #if targetEnvironment(macCatalyst)

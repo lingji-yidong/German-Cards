@@ -1,13 +1,23 @@
 # GermanCards
 
+<p align="center">
+  <img src="Assets.xcassets/AppIcon.appiconset/AppIcon-Mac-512@2x.png" alt="GermanCards icon" width="96" height="96">
+</p>
+
 A SwiftUI vocabulary and grammar reference app for German learners. GermanCards keeps a personal word-card library on device, supports spoken German pronunciation through the system speech synthesizer, and runs on iPhone, iPad, and macOS through Mac Catalyst.
 
 ## Preview
 
 <table>
   <tr>
-    <td width="34%"><img src="docs/images/demo_mobile.png" alt="GermanCards mobile demo" width="220"></td>
-    <td width="66%"><img src="docs/images/demo_desktop.png" alt="GermanCards desktop demo" width="420"></td>
+    <td align="center">
+      <img src="docs/images/demo_mobile.png" alt="GermanCards mobile demo" width="230">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/images/demo_desktop.png" alt="GermanCards desktop demo" width="520">
+    </td>
   </tr>
 </table>
 
@@ -29,13 +39,13 @@ GermanCards supports:
 
 ## macOS Builds
 
-The GitHub Actions workflow builds a universal Mac Catalyst app with both `arm64` and `x86_64` slices. Each run uploads an unsigned artifact named `GermanCards-macOS-universal-unsigned` containing:
+The GitHub Actions workflow builds a universal Mac Catalyst app with both `arm64` and `x86_64` slices. Each run uploads an artifact named `GermanCards-macOS-universal` containing:
 
 - `GermanCards-macOS-universal.pkg` - installer package for `/Applications`
 - `GermanCards-macOS-universal.dmg` - drag-and-drop disk image
 - `GermanCards-macOS-universal.zip` - zipped `.app` bundle for quick testing
 
-These builds are unsigned and not notarized. On first launch, macOS may require approval from System Settings > Privacy & Security.
+Release builds use ad-hoc signing for the app bundle, but they are not Developer ID signed or notarized. On first launch, macOS may require approval from System Settings > Privacy & Security.
 
 ## Release Disclaimer
 
