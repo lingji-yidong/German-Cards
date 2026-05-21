@@ -117,18 +117,29 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          gh release create "$TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "GermanCards $TAG" \
-            --notes "$(cat <<'NOTES'
-GermanCards macOS universal build.
-
-This release is provided for convenience only. The macOS package is unsigned and not notarized. It is distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, or any other damage arising from installation or use. Review the source code and build the app yourself if you need stronger trust guarantees.
-NOTES
-)" \
-            "$ARTIFACT_DIR/GermanCards-macOS-universal.pkg" \
-            "$ARTIFACT_DIR/GermanCards-macOS-universal.zip" \
+          ARTIFACT_DIR="$RUNNER_TEMP/artifacts"
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          {
+            echo "GermanCards macOS universal build."
+            echo
+            echo "This release is provided for convenience only. The macOS package is unsigned and not notarized."
+            echo "It is distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, or any other damage arising from installation or use."
+            echo "Review the source code and build the app yourself if you need stronger trust guarantees."
+          } > "$NOTES_FILE"
+          RELEASE_ASSETS=(
+            "$ARTIFACT_DIR/GermanCards-macOS-universal.pkg"
+            "$ARTIFACT_DIR/GermanCards-macOS-universal.zip"
             "$ARTIFACT_DIR/GermanCards-macOS-universal.dmg"
+          )
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber "${RELEASE_ASSETS[@]}"
+          else
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "GermanCards $TAG" \
+              --notes-file "$NOTES_FILE" \
+              "${RELEASE_ASSETS[@]}"
+          fi
 
       - name: Upload build diagnostics
         if: always()
