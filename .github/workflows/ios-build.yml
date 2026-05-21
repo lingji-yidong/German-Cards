@@ -83,7 +83,7 @@ jobs:
 
           APP_BINARY="$APP_PATH/Contents/MacOS/GermanCards"
           lipo -archs "$APP_BINARY"
-          lipo -verify_arch arm64 x86_64 "$APP_BINARY"
+          lipo "$APP_BINARY" -verify_arch arm64 x86_64
 
           pkgbuild \
             --root "$STAGING_DIR" \
