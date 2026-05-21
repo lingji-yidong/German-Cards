@@ -17,11 +17,11 @@ jobs:
           - destination_name: iOS
             destination: generic/platform=iOS
             configuration: Debug
-            result_bundle: build/GermanCards-iOS.xcresult
+            result_bundle: GermanCards-iOS.xcresult
           - destination_name: Universal Mac
             destination: generic/platform=macOS,variant=Mac Catalyst
             configuration: Release
-            result_bundle: build/GermanCards-UniversalMac.xcresult
+            result_bundle: GermanCards-UniversalMac.xcresult
             package_desktop: true
 
     steps:
@@ -51,25 +51,29 @@ jobs:
             EXTRA_SETTINGS+=(ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO)
           fi
 
+          DERIVED_DATA_PATH="$RUNNER_TEMP/GermanCardsDerivedData"
+          RESULT_BUNDLE_PATH="$RUNNER_TEMP/${{ matrix.result_bundle }}"
+          BUILD_LOG_PATH="$RUNNER_TEMP/build-${{ matrix.destination_name }}.log"
+
           xcodebuild \
             -project GermanCards.xcodeproj \
             -scheme GermanCards \
             -configuration '${{ matrix.configuration }}' \
             -destination '${{ matrix.destination }}' \
-            -derivedDataPath build/DerivedData \
-            -resultBundlePath '${{ matrix.result_bundle }}' \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -resultBundlePath "$RESULT_BUNDLE_PATH" \
             CODE_SIGNING_ALLOWED=NO \
             "${EXTRA_SETTINGS[@]}" \
-            build | tee build.log
+            build | tee "$BUILD_LOG_PATH"
 
       - name: Package universal Mac installer
         if: matrix.package_desktop == true
         run: |
           set -euo pipefail
-          APP_PATH="build/DerivedData/Build/Products/${{ matrix.configuration }}-maccatalyst/GermanCards.app"
-          ARTIFACT_DIR="build/artifacts"
-          STAGING_DIR="build/pkg-root"
-          DMG_DIR="build/dmg-root"
+          APP_PATH="$RUNNER_TEMP/GermanCardsDerivedData/Build/Products/${{ matrix.configuration }}-maccatalyst/GermanCards.app"
+          ARTIFACT_DIR="$RUNNER_TEMP/artifacts"
+          STAGING_DIR="$RUNNER_TEMP/pkg-root"
+          DMG_DIR="$RUNNER_TEMP/dmg-root"
           COMPONENT_PKG="$ARTIFACT_DIR/GermanCards-component.pkg"
           INSTALLER_PKG="$ARTIFACT_DIR/GermanCards-macOS-universal.pkg"
 
@@ -107,8 +111,8 @@ jobs:
         with:
           name: xcode-build-diagnostics-${{ matrix.destination_name }}
           path: |
-            build.log
-            build/*.xcresult
+            ${{ runner.temp }}/build-${{ matrix.destination_name }}.log
+            ${{ runner.temp }}/${{ matrix.result_bundle }}
           if-no-files-found: ignore
 
       - name: Upload universal Mac package
@@ -117,7 +121,7 @@ jobs:
         with:
           name: GermanCards-macOS-universal-unsigned
           path: |
-            build/artifacts/GermanCards-macOS-universal.pkg
-            build/artifacts/GermanCards-macOS-universal.zip
-            build/artifacts/GermanCards-macOS-universal.dmg
+            ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.pkg
+            ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.zip
+            ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.dmg
           if-no-files-found: error
