@@ -8,7 +8,8 @@ A SwiftUI vocabulary and grammar reference app for German learners. GermanCards 
 
 ## Preview
 
-<table>
+<div align="center">
+<table align="center">
   <tr>
     <td align="center">
       <img src="docs/images/demo_mobile.png" alt="GermanCards mobile demo" width="230">
@@ -20,6 +21,7 @@ A SwiftUI vocabulary and grammar reference app for German learners. GermanCards 
     </td>
   </tr>
 </table>
+</div>
 
 ## Highlights
 
