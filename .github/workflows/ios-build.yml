@@ -82,12 +82,16 @@ jobs:
           INSTALLER_PKG="$ARTIFACT_DIR/GermanCards-macOS-universal.pkg"
 
           mkdir -p "$ARTIFACT_DIR" "$STAGING_DIR/Applications" "$DMG_DIR"
-          ditto "$APP_PATH" "$STAGING_DIR/Applications/GermanCards.app"
-          ditto -c -k --keepParent "$APP_PATH" "$ARTIFACT_DIR/GermanCards-macOS-universal.zip"
 
           APP_BINARY="$APP_PATH/Contents/MacOS/GermanCards"
           lipo -archs "$APP_BINARY"
           lipo "$APP_BINARY" -verify_arch arm64 x86_64
+
+          codesign --force --deep --sign - "$APP_PATH"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
+          ditto "$APP_PATH" "$STAGING_DIR/Applications/GermanCards.app"
+          ditto -c -k --keepParent "$APP_PATH" "$ARTIFACT_DIR/GermanCards-macOS-universal.zip"
 
           pkgbuild \
             --root "$STAGING_DIR" \
@@ -122,7 +126,7 @@ jobs:
           {
             echo "GermanCards macOS universal build."
             echo
-            echo "This release is provided for convenience only. The macOS package is unsigned and not notarized."
+            echo "This release is provided for convenience only. The app is ad-hoc signed, and the macOS package is not Developer ID signed or notarized."
             echo "It is distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, or any other damage arising from installation or use."
             echo "Review the source code and build the app yourself if you need stronger trust guarantees."
           } > "$NOTES_FILE"
@@ -155,7 +159,7 @@ jobs:
         if: matrix.package_desktop == true
         uses: actions/upload-artifact@v4
         with:
-          name: GermanCards-macOS-universal-unsigned
+          name: GermanCards-macOS-universal
           path: |
             ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.pkg
             ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.zip
