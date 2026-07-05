@@ -18,7 +18,8 @@ final class WordStore: ObservableObject {
         let normalized = normalize(word)
         return history.first { card in
             normalize(card.word) == normalized ||
-            matchesNounForm(card, normalized: normalized)
+            matchesNounForm(card, normalized: normalized) ||
+            matchesTranslation(card, normalized: normalized)
         }
     }
 
@@ -38,6 +39,36 @@ final class WordStore: ObservableObject {
             partOfSpeech.contains("substantiv") ||
             card.partOfSpeech.contains("名詞") ||
             card.partOfSpeech.contains("名词")
+    }
+
+    private func matchesTranslation(_ card: GermanWordData, normalized: String) -> Bool {
+        guard !normalized.isEmpty else { return false }
+
+        if let englishMeaning = card.englishMeaning, matchesSeparatedGloss(englishMeaning, normalized: normalized) {
+            return true
+        }
+        return matchesSeparatedGloss(card.meaning, normalized: normalized)
+    }
+
+    private func matchesSeparatedGloss(_ value: String, normalized: String) -> Bool {
+        let normalizedValue = normalize(value)
+        guard !normalizedValue.isEmpty else { return false }
+        if normalizedValue == normalized { return true }
+
+        let separators = CharacterSet(charactersIn: ",，、;；/／()（）[]【】")
+            .union(.whitespacesAndNewlines)
+        let components = normalizedValue
+            .components(separatedBy: separators)
+            .filter { !$0.isEmpty }
+
+        if components.contains(normalized) {
+            return true
+        }
+
+        // Chinese glosses are often stored without spaces, so allow a conservative substring match.
+        return normalized.count >= 2 &&
+            containsCJK(normalized) &&
+            normalizedValue.contains(normalized)
     }
 
     func save(_ data: GermanWordData) {
@@ -117,6 +148,12 @@ final class WordStore: ObservableObject {
 
     private func normalize(_ word: String) -> String {
         word.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+    private func containsCJK(_ value: String) -> Bool {
+        value.unicodeScalars.contains { scalar in
+            (0x4E00...0x9FFF).contains(scalar.value)
+        }
     }
 }
 

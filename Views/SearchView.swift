@@ -53,7 +53,7 @@ struct SearchView: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
-            TextField("Generate a German word card", text: $query)
+            TextField("German, English, or Chinese word", text: $query)
                 .focused($isSearchFocused)
                 .germanCardsAutocapitalization(.words)
                 .germanCardsSearchSubmitLabel()
@@ -133,7 +133,7 @@ struct SearchView: View {
     @ViewBuilder
     private func statusContent(onCardChanged: @escaping () -> Void) -> some View {
         if isLoading {
-            ProgressView("Generating card...")
+            ProgressView("Finding the right German card...")
                 .frame(maxWidth: .infinity)
                 .padding(.top, 80)
         } else if let suggestion {
@@ -237,7 +237,7 @@ struct SearchView: View {
         let normalizedInput = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let normalizedWord = result.word.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !normalizedInput.isEmpty, normalizedInput != normalizedWord {
-            normalizedLookupMessage = "已將 ‘\(input)’ 對應到原型 ‘\(result.word)’"
+            normalizedLookupMessage = "已將「\(input)」對應到德語原型「\(result.word)」"
         } else {
             normalizedLookupMessage = nil
         }
@@ -261,9 +261,9 @@ private struct WordSuggestion: Equatable {
 
     var message: String {
         if let suggestedWord, !suggestedWord.isEmpty {
-            return "‘\(originalWord)’ 看起來不像穩定的德語詞。你是不是想查 ‘\(suggestedWord)’？"
+            return "「\(originalWord)」目前無法穩定對應。你是不是想查「\(suggestedWord)」？"
         }
-        return "‘\(originalWord)’ 看起來不像穩定的德語詞。請檢查拼寫後再生成卡片。"
+        return "「\(originalWord)」目前無法穩定對應到單一德語詞。請補充更多上下文或換個說法。"
     }
 }
 

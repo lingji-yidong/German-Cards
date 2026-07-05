@@ -51,7 +51,7 @@ final class LLMWordClient {
             model: configuration.model,
             messages: [
                 ChatMessage(role: "system", content: systemPrompt),
-                ChatMessage(role: "user", content: "Analyze the German word: \(word)")
+                ChatMessage(role: "user", content: "Resolve this vocabulary query to the best German dictionary headword and build a card: \(word)")
             ],
             temperature: 0.1,
             response_format: ResponseFormat(type: "json_object")
@@ -78,7 +78,7 @@ final class LLMWordClient {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(GeminiRequest(contents: [
-            GeminiContent(parts: [GeminiPart(text: "\(systemPrompt)\n\nAnalyze the German word: \(word)")])
+            GeminiContent(parts: [GeminiPart(text: "\(systemPrompt)\n\nResolve this vocabulary query to the best German dictionary headword and build a card: \(word)")])
         ]))
 
         let (data, _) = try await URLSession.shared.data(for: request)
@@ -155,16 +155,22 @@ final class LLMWordClient {
 
     private var systemPrompt: String {
         """
-        Return only strict JSON for a German vocabulary card. Fields:
+        Return only strict JSON for a German vocabulary card. The user may enter a German word or inflected form, a misspelled German word, an English word/phrase, or a Traditional/Simplified Chinese word/phrase. Resolve the input to the best German dictionary headword before building the card.
+
+        Fields:
         word, meaning, englishMeaning, partOfSpeech, gender ("der", "die", "das", "none"), pluralForm,
         declensionTable [{caseName, singular, plural}],
         verbConjugation [{tense, pronoun, form}],
         adjectiveComparison {positive, comparative, superlative},
         exampleSentence, exampleTranslation, referenceSource, notes [string],
         isValidGermanWord, suggestedWord, confidence.
-        First validate the user's exact input. If the input is already a valid dictionary headword, return that headword and do not redirect it to another lemma merely because the same spelling can also be an inflected form. German nouns may be typed lowercase; for example input "sonne" should be treated as the noun "Sonne" (die Sonne) unless the user explicitly asks for the verb "sonnen".
+
+        For German input, first validate the user's exact input. If the input is already a valid dictionary headword, return that headword and do not redirect it to another lemma merely because the same spelling can also be an inflected form. German nouns may be typed lowercase; for example input "sonne" should be treated as the noun "Sonne" (die Sonne) unless the user explicitly asks for the verb "sonnen".
         Inflected German forms are valid: plural nouns, declined nouns/adjectives, and conjugated verbs must set isValidGermanWord=true and return the dictionary lemma in word only when the input is not itself a more common headword. For example, input "Augen" should return word "Auge", gender "das", and pluralForm "Augen".
-        Only set isValidGermanWord=false when the input is misspelled, not German, or too ambiguous. In that case put the most likely corrected German lemma in suggestedWord, set confidence 0..1, and do not invent a full card.
+
+        For English or Chinese input, treat the input as a meaning lookup. Choose one common, useful German headword that best matches the query, set isValidGermanWord=true, put the German headword in word, and build the full card for that headword. For example, input "try", "attempt", "嘗試", or "尝试" may resolve to "versuchen". Use suggestedWord only when the query is too ambiguous to choose one German word confidently.
+
+        Only set isValidGermanWord=false when the input is misspelled German with no confident correction, is not a vocabulary lookup, or is too ambiguous to map to one useful German headword. In that case put the most likely German lemma in suggestedWord when possible, set confidence 0..1, and do not invent a full card.
         Use Traditional Chinese consistently for meaning, exampleTranslation, and notes. Put an English gloss in englishMeaning.
         Use short, conservative notes in Traditional Chinese. Do not mix languages in notes except German examples.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
