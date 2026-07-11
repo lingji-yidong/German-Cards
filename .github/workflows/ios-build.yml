@@ -97,7 +97,7 @@ jobs:
           pkgbuild \
             --root "$STAGING_DIR" \
             --identifier "uk.habseligkeiten.GermanCards" \
-            --version "1.0.5" \
+            --version "1.0.6" \
             --install-location "/" \
             "$COMPONENT_PKG"
 
