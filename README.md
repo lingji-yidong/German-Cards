@@ -109,7 +109,7 @@ xcodebuild \
 
 ## App Icon
 
-The app icon is managed through `Assets.xcassets/AppIcon.appiconset`. The Xcode project explicitly sets `CFBundleIconName` to `AppIcon` and enables standalone icon generation so Mac Catalyst builds include the icon assets expected by macOS.
+The primary app icon is managed through `Assets.xcassets/AppIcon.appiconset`. The restored dark Mac icon keeps its rounded transparent silhouette, and `Assets.xcassets/AppIconMacLight.appiconset` contains a matching light Mac variant at every required size. The Xcode project explicitly sets `CFBundleIconName` to `AppIcon` and enables standalone icon generation so Mac Catalyst builds include the icon assets expected by macOS.
 
 ## Signing
 

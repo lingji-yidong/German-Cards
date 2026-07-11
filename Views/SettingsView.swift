@@ -63,7 +63,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     SettingsSection(
                         title: "Display",
-                        footer: "Appearance and the iOS app icon follow the system by default. Choosing Light or Dark also selects that icon on iPhone and iPad. Grammar copy can be switched independently from the device language."
+                        footer: "Appearance follows the system by default. Grammar copy can be switched independently from the device language."
                     ) {
                         SettingsRow("Appearance") {
                             Picker("Appearance", selection: appearance) {
