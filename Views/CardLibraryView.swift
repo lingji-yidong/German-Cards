@@ -5,6 +5,7 @@ struct CardLibraryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var editingCard: GermanWordData?
     @State private var sortOrder = CardSortOrder.ascending
+    @State private var searchText = ""
 
     private var sortedCards: [GermanWordData] {
         store.history.sorted { lhs, rhs in
@@ -14,6 +15,23 @@ struct CardLibraryView: View {
                 return left == .orderedAscending
             case .descending:
                 return left == .orderedDescending
+            }
+        }
+    }
+
+    private var displayedCards: [GermanWordData] {
+        let term = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !term.isEmpty else { return sortedCards }
+
+        return sortedCards.filter { card in
+            [
+                card.word,
+                card.meaning,
+                card.englishMeaning ?? "",
+                card.partOfSpeech,
+                card.pluralForm,
+            ].contains { value in
+                value.localizedCaseInsensitiveContains(term)
             }
         }
     }
@@ -30,7 +48,7 @@ struct CardLibraryView: View {
                     .pickerStyle(.segmented)
                 }
 
-                ForEach(sortedCards) { card in
+                ForEach(displayedCards) { card in
                     Button {
                         editingCard = card
                     } label: {
@@ -50,9 +68,12 @@ struct CardLibraryView: View {
             .overlay {
                 if store.history.isEmpty {
                     ContentUnavailableView("No cards", systemImage: "rectangle.stack", description: Text("Generated cards will appear here."))
+                } else if displayedCards.isEmpty {
+                    ContentUnavailableView.search(text: searchText)
                 }
             }
             .navigationTitle("Manage Cards")
+            .searchable(text: $searchText, prompt: "Search words or meanings")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
@@ -65,8 +86,8 @@ struct CardLibraryView: View {
     }
 
     private func deleteSortedCards(at offsets: IndexSet) {
-        for index in offsets where sortedCards.indices.contains(index) {
-            store.delete(sortedCards[index])
+        for index in offsets where displayedCards.indices.contains(index) {
+            store.delete(displayedCards[index])
         }
     }
 }

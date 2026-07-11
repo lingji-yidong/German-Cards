@@ -145,10 +145,17 @@ struct SearchView: View {
                 deck: [selectedWord],
                 index: .constant(0),
                 onClearSelection: { self.selectedWord = nil },
+                onDelete: deleteCard,
                 onCardChanged: onCardChanged
             )
         } else if !deck.isEmpty {
-            CardDeckView(deck: deck, index: $deckIndex, onClearSelection: nil, onCardChanged: onCardChanged)
+            CardDeckView(
+                deck: deck,
+                index: $deckIndex,
+                onClearSelection: nil,
+                onDelete: deleteCard,
+                onCardChanged: onCardChanged
+            )
         } else {
             emptyDictionary
         }
@@ -243,6 +250,15 @@ struct SearchView: View {
         }
     }
 
+    private func deleteCard(_ card: GermanWordData) {
+        store.delete(card)
+        if selectedWord?.id == card.id {
+            selectedWord = nil
+            normalizedLookupMessage = nil
+        }
+        deckIndex = min(deckIndex, max(store.history.count - 1, 0))
+    }
+
     private func scrollActiveCard(with proxy: ScrollViewProxy) {
         guard horizontalSizeClass == .compact else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
@@ -271,9 +287,11 @@ private struct CardDeckView: View {
     let deck: [GermanWordData]
     @Binding var index: Int
     let onClearSelection: (() -> Void)?
+    let onDelete: (GermanWordData) -> Void
     let onCardChanged: () -> Void
     @State private var dragOffset: CGSize = .zero
     @State private var isHorizontalDrag = false
+    @State private var cardPendingDeletion: GermanWordData?
 
     private var current: GermanWordData? {
         guard !deck.isEmpty else { return nil }
@@ -304,6 +322,26 @@ private struct CardDeckView: View {
                 controls
             }
         }
+        .alert("Delete card?", isPresented: deletionConfirmationPresented, presenting: cardPendingDeletion) { card in
+            Button("Delete", role: .destructive) {
+                onDelete(card)
+                cardPendingDeletion = nil
+            }
+            Button("Cancel", role: .cancel) {
+                cardPendingDeletion = nil
+            }
+        } message: { card in
+            Text("This will permanently delete “\(card.word)” from your local dictionary.")
+        }
+    }
+
+    private var deletionConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { cardPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented { cardPendingDeletion = nil }
+            }
+        )
     }
 
     private var cardSwipeGesture: some Gesture {
@@ -351,6 +389,15 @@ private struct CardDeckView: View {
             }
             .buttonStyle(.bordered)
             .disabled(deck.count < 2)
+
+            Button { cardPendingDeletion = current } label: {
+                Label("Delete", systemImage: "trash")
+                    .labelStyle(.iconOnly)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.bordered)
+            .tint(.red)
+            .accessibilityLabel("刪除當前卡片")
 
             if let onClearSelection {
                 Button { onClearSelection() } label: {

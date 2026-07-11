@@ -50,8 +50,10 @@ struct WordCardView: View {
                     Text(data.word)
                         .font(.system(size: 42, weight: .black, design: .rounded))
                         .foregroundStyle(AppTheme.primaryText)
-                        .minimumScaleFactor(0.72)
-                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .layoutPriority(1)
                         .textSelection(.enabled)
                     Button {
                         speak(data.word)
