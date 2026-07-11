@@ -20,8 +20,9 @@ jobs:
         include:
           - destination_name: iOS
             destination: generic/platform=iOS
-            configuration: Debug
+            configuration: Release
             result_bundle: GermanCards-iOS.xcresult
+            package_ios: true
           - destination_name: Universal Mac
             destination: generic/platform=macOS,variant=Mac Catalyst
             configuration: Release
@@ -113,37 +114,18 @@ jobs:
             -format UDZO \
             "$ARTIFACT_DIR/GermanCards-macOS-universal.dmg"
 
-
-      - name: Publish GitHub Release
-        if: matrix.package_desktop == true && startsWith(github.ref, 'refs/tags/v')
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Package unsigned iOS build
+        if: matrix.package_ios == true
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME}"
+          APP_PATH="$RUNNER_TEMP/GermanCardsDerivedData/Build/Products/${{ matrix.configuration }}-iphoneos/GermanCards.app"
           ARTIFACT_DIR="$RUNNER_TEMP/artifacts"
-          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
-          {
-            echo "GermanCards macOS universal build."
-            echo
-            echo "This release is provided for convenience only. The app is ad-hoc signed, and the macOS package is not Developer ID signed or notarized."
-            echo "It is distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, or any other damage arising from installation or use."
-            echo "Review the source code and build the app yourself if you need stronger trust guarantees."
-          } > "$NOTES_FILE"
-          RELEASE_ASSETS=(
-            "$ARTIFACT_DIR/GermanCards-macOS-universal.pkg"
-            "$ARTIFACT_DIR/GermanCards-macOS-universal.zip"
-            "$ARTIFACT_DIR/GermanCards-macOS-universal.dmg"
-          )
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber "${RELEASE_ASSETS[@]}"
-          else
-            gh release create "$TAG" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "GermanCards $TAG" \
-              --notes-file "$NOTES_FILE" \
-              "${RELEASE_ASSETS[@]}"
-          fi
+          PAYLOAD_DIR="$RUNNER_TEMP/ios-payload/Payload"
+
+          mkdir -p "$ARTIFACT_DIR" "$PAYLOAD_DIR"
+          ditto "$APP_PATH" "$PAYLOAD_DIR/GermanCards.app"
+          ditto -c -k --keepParent "$APP_PATH" "$ARTIFACT_DIR/GermanCards-iOS-unsigned-app.zip"
+          ditto -c -k "$RUNNER_TEMP/ios-payload" "$ARTIFACT_DIR/GermanCards-iOS-unsigned.ipa"
 
       - name: Upload build diagnostics
         if: always()
@@ -165,3 +147,51 @@ jobs:
             ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.zip
             ${{ runner.temp }}/artifacts/GermanCards-macOS-universal.dmg
           if-no-files-found: error
+
+      - name: Upload unsigned iOS package
+        if: matrix.package_ios == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: GermanCards-iOS-unsigned
+          path: |
+            ${{ runner.temp }}/artifacts/GermanCards-iOS-unsigned-app.zip
+            ${{ runner.temp }}/artifacts/GermanCards-iOS-unsigned.ipa
+          if-no-files-found: error
+
+  release:
+    name: Publish Apple release artifacts
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download packaged builds
+        uses: actions/download-artifact@v4
+        with:
+          pattern: GermanCards-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          {
+            echo "GermanCards builds for macOS and iOS."
+            echo
+            echo "The macOS app is ad-hoc signed and is not Developer ID signed or notarized."
+            echo "The iOS app is unsigned and must be signed with your own Apple Developer identity and provisioning profile before it can be installed on a device."
+            echo "These builds are provided as-is. Review the source and build it yourself if you need stronger trust guarantees."
+          } > "$NOTES_FILE"
+
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber release-assets/*
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "GermanCards $GITHUB_REF_NAME" \
+              --notes-file "$NOTES_FILE" \
+              release-assets/*
+          fi

@@ -63,6 +63,12 @@ Because the macOS package is not notarized, Gatekeeper may block the first launc
 
 Only do this if you trust the source code and the release asset you downloaded.
 
+## iOS Builds
+
+Each GitHub Actions run also uploads `GermanCards-iOS-unsigned`, containing an unsigned `.ipa` and a zipped `.app` bundle. Tagged releases include both files alongside the macOS packages.
+
+The iOS artifacts cannot be installed directly. Apple requires them to be signed with your own Developer identity and a provisioning profile before device installation; the repository does not require or store those credentials.
+
 ## Release Disclaimer
 
 Release builds are provided for convenience only. They are ad-hoc signed, not Developer ID signed, not notarized by Apple, and not reviewed by Apple. The software is distributed as-is, without warranty, support commitment, or liability for data loss, system issues, security decisions, privacy consequences, or any other damage arising from installation or use. You are responsible for deciding whether to run the app, reviewing the source code, and building it yourself if you need stronger trust guarantees.

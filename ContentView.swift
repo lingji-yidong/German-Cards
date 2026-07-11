@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var store = WordStore()
     @AppStorage("app_appearance") private var appearanceRaw = AppAppearance.system.rawValue
+    @Environment(\.colorScheme) private var systemColorScheme
 
     var body: some View {
         TabView {
@@ -30,6 +31,10 @@ struct ContentView: View {
         }
         .tint(AppTheme.brand)
         .preferredColorScheme((AppAppearance(rawValue: appearanceRaw) ?? .system).colorScheme)
+        .task(id: "\(appearanceRaw)-\(systemColorScheme == .dark ? "dark" : "light")") {
+            let appearance = AppAppearance(rawValue: appearanceRaw) ?? .system
+            await AppIconController.apply(appearance: appearance, systemColorScheme: systemColorScheme)
+        }
     }
 }
 

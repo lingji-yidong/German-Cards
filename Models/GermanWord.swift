@@ -60,7 +60,7 @@ struct AdjectiveComparison: Codable, Hashable {
 
 struct GermanWordData: Codable, Identifiable, Hashable {
     // Bump this when generated card content changes enough to justify smart renewal.
-    static let currentSchemaVersion = 3
+    static let currentSchemaVersion = 5
 
     var id: String { word.lowercased() }
     let word: String

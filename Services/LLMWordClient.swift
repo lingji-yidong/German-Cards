@@ -172,7 +172,13 @@ final class LLMWordClient {
 
         Only set isValidGermanWord=false when the input is misspelled German with no confident correction, is not a vocabulary lookup, or is too ambiguous to map to one useful German headword. In that case put the most likely German lemma in suggestedWord when possible, set confidence 0..1, and do not invent a full card.
         Use Traditional Chinese consistently for meaning, exampleTranslation, and notes. Put an English gloss in englishMeaning.
-        Use short, conservative notes in Traditional Chinese. Do not mix languages in notes except German examples.
+        Use concise, conservative notes in Traditional Chinese. Do not mix languages except when citing German forms or source-language words. Include only notes that are relevant to understanding or remembering the headword, using the following rules:
+        - Compound words: always include one decomposition in the form "複合詞拆解：German component（繁體中文意思）+ German component（繁體中文意思）". Include every meaningful component in order, explain linking elements such as -s- when present, and state briefly how the components produce the full meaning. This is required even when the compound was generated from an English or Chinese query. For example, Warpgeschwindigkeit must explain Warp + Geschwindigkeit rather than only defining the complete word. Do not invent a decomposition for a word that is not a compound.
+        - Loanwords: when reliably known, identify the source language and source word, give its original meaning, and briefly explain how it entered or changed in German.
+        - Historical etymology: when reliably known and useful, summarize development from stages such as Old High German, Middle High German, Latin, or Ancient Greek. Give only a broad period unless a more precise date is well established; never invent a year or an intermediate form.
+        - Semantic development: mention a notable change from the older meaning to the modern German meaning when it helps explain present usage.
+        - Fun fact: optionally include at most one short, memorable fact only when it is linguistically relevant and reasonably reliable. Prefer usage, word-family, or cultural-language facts over unrelated trivia.
+        Omit etymology or fun facts when confidence is low. State uncertainty explicitly instead of presenting a disputed origin as fact. Do not add filler notes merely to satisfy every category.
         For nouns, include Nominativ, Akkusativ, Dativ, Genitiv rows with articles.
         For verbs, include common conjugations in verbConjugation: Präsens ich/du/er-sie-es/wir/ihr/sie-Sie, plus Präteritum and Perfekt summary rows when useful. Use [] for non-verbs.
         For adjectives, include adjectiveComparison with positive, comparative, and superlative forms, for example {"positive":"schnell","comparative":"schneller","superlative":"am schnellsten"}. Use null for non-adjectives.
