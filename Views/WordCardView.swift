@@ -46,6 +46,9 @@ struct WordCardView: View {
                         Text(data.displayArticle)
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(data.gender.tint)
+                            .lineLimit(1)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .layoutPriority(2)
                     }
                     Text(data.word)
                         .font(.system(size: 42, weight: .black, design: .rounded))
@@ -63,6 +66,7 @@ struct WordCardView: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(data.gender.tint)
+                    .fixedSize()
                     .accessibilityLabel("朗讀德語詞")
                 }
 
