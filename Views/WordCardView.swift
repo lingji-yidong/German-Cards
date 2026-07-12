@@ -30,7 +30,7 @@ struct WordCardView: View {
     private var header: some View {
         VStack(spacing: 14) {
             HStack {
-                Label(data.partOfSpeech, systemImage: "tag")
+                Label(data.partOfSpeech.label, systemImage: "tag")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)

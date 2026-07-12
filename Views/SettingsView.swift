@@ -7,9 +7,11 @@ struct SettingsView: View {
     @AppStorage("llm_base_url") private var baseURL = LLMProvider.openAICompatible.defaultBaseURL
     @AppStorage("llm_model") private var model = LLMProvider.openAICompatible.defaultModel
     @AppStorage("llm_api_key") private var apiKey = ""
+    @AppStorage("llm_additional_request_body") private var additionalRequestBody = ""
     @State private var draftBaseURL = ""
     @State private var draftModel = ""
     @State private var draftAPIKey = ""
+    @State private var draftAdditionalRequestBody = ""
     @State private var configurationStatus: String?
     @State private var isRenewing = false
     @State private var renewStatus: String?
@@ -118,6 +120,23 @@ struct SettingsView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .onChange(of: draftAPIKey) { _, _ in configurationStatus = nil }
                         }
+                        SettingsDivider()
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Additional Request Body")
+                                .font(.subheadline.weight(.semibold))
+                            TextEditor(text: $draftAdditionalRequestBody)
+                                .font(.system(.body, design: .monospaced))
+                                .frame(minHeight: 90)
+                                .padding(6)
+                                .background(AppTheme.elevatedSurface)
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.separator))
+                                .onChange(of: draftAdditionalRequestBody) { _, _ in configurationStatus = nil }
+                            Text("Optional JSON object for OpenAI-compatible and Custom providers. Values override the default request body, for example {\"temperature\":1}.")
+                                .font(.footnote)
+                                .foregroundStyle(AppTheme.secondaryText)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         SettingsDivider()
                         SettingsActionRow {
                             Button {
@@ -244,18 +263,32 @@ struct SettingsView: View {
         draftBaseURL = baseURL
         draftModel = model
         draftAPIKey = apiKey
+        draftAdditionalRequestBody = additionalRequestBody
     }
 
     private func saveConfiguration() {
+        let trimmedAdditionalRequestBody = draftAdditionalRequestBody.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard isValidJSONObject(trimmedAdditionalRequestBody) else {
+            configurationStatus = "Additional Request Body must be a valid JSON object."
+            return
+        }
         let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
         let normalizedBaseURL = LLMConfiguration.normalizedBaseURL(draftBaseURL, provider: provider)
         baseURL = normalizedBaseURL
         model = draftModel.trimmingCharacters(in: .whitespacesAndNewlines)
         apiKey = draftAPIKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        additionalRequestBody = trimmedAdditionalRequestBody
         draftBaseURL = baseURL
         draftModel = model
         draftAPIKey = apiKey
+        draftAdditionalRequestBody = additionalRequestBody
         configurationStatus = "Configuration saved: \(baseURL)"
+    }
+
+    private func isValidJSONObject(_ value: String) -> Bool {
+        guard !value.isEmpty else { return true }
+        guard let data = value.data(using: .utf8) else { return false }
+        return (try? JSONSerialization.jsonObject(with: data)) is [String: Any]
     }
 
     private func exportDictionary() {
@@ -284,7 +317,13 @@ struct SettingsView: View {
     @MainActor
     private func renewExistingCards(forceAll: Bool) async {
         let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
-        let config = LLMConfiguration(provider: provider, baseURL: baseURL, model: model, apiKey: apiKey)
+        let config = LLMConfiguration(
+            provider: provider,
+            baseURL: baseURL,
+            model: model,
+            apiKey: apiKey,
+            additionalRequestBody: additionalRequestBody
+        )
         guard config.isUsable else {
             renewStatus = "請先填好 LLM provider URL、model 和 API key。"
             return
@@ -344,13 +383,11 @@ struct SettingsView: View {
     }
 
     private func isVerb(_ card: GermanWordData) -> Bool {
-        let value = card.partOfSpeech.lowercased()
-        return value.contains("verb") || value.contains("動詞") || value.contains("verben")
+        card.partOfSpeech == .verb
     }
 
     private func isAdjective(_ card: GermanWordData) -> Bool {
-        let value = card.partOfSpeech.lowercased()
-        return value.contains("adjective") || value.contains("adj") || value.contains("形容詞") || value.contains("adjektiv")
+        card.partOfSpeech == .adjective
     }
 }
 

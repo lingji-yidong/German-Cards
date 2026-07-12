@@ -38,6 +38,62 @@ enum GrammaticalGender: String, Codable, CaseIterable {
     }
 }
 
+enum PartOfSpeech: String, Codable, CaseIterable, Identifiable {
+    case noun
+    case verb
+    case adjective
+    case adverb
+    case pronoun
+    case preposition
+    case conjunction
+    case interjection
+    case numeral
+    case other
+
+    var id: String { rawValue }
+
+    var label: String {
+        rawValue.capitalized
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        self = Self.normalized(value)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+
+    static func normalized(_ value: String) -> PartOfSpeech {
+        let normalizedValue = value.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        switch normalizedValue {
+        case "noun", "nomen", "substantiv", "名詞", "名词":
+            return .noun
+        case "verb", "verben", "動詞", "动词":
+            return .verb
+        case "adjective", "adj", "adjektiv", "形容詞", "形容词":
+            return .adjective
+        case "adverb", "副詞", "副词":
+            return .adverb
+        case "pronoun", "pronomen", "代名詞", "代词":
+            return .pronoun
+        case "preposition", "präposition", "介詞", "介词":
+            return .preposition
+        case "conjunction", "konjunktion", "連接詞", "连词":
+            return .conjunction
+        case "interjection", "interjektion", "感嘆詞", "感叹词":
+            return .interjection
+        case "numeral", "number", "zahlwort", "數詞", "数词":
+            return .numeral
+        default:
+            return .other
+        }
+    }
+}
+
 struct DeclensionRow: Codable, Hashable, Identifiable {
     var id: String { caseName }
     let caseName: String
@@ -66,7 +122,7 @@ struct GermanWordData: Codable, Identifiable, Hashable {
     let word: String
     let meaning: String
     let englishMeaning: String?
-    let partOfSpeech: String
+    let partOfSpeech: PartOfSpeech
     let gender: GrammaticalGender
     let pluralForm: String
     let declensionTable: [DeclensionRow]
@@ -139,6 +195,7 @@ struct LLMConfiguration {
     let baseURL: String
     let model: String
     let apiKey: String
+    let additionalRequestBody: String
 
     var normalizedBaseURL: String {
         Self.normalizedBaseURL(baseURL, provider: provider)

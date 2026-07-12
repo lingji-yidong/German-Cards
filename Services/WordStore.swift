@@ -32,13 +32,7 @@ final class WordStore: ObservableObject {
     }
 
     private func isNoun(_ card: GermanWordData) -> Bool {
-        let partOfSpeech = card.partOfSpeech.lowercased()
-        return card.gender != .none ||
-            partOfSpeech.contains("noun") ||
-            partOfSpeech.contains("nomen") ||
-            partOfSpeech.contains("substantiv") ||
-            card.partOfSpeech.contains("名詞") ||
-            card.partOfSpeech.contains("名词")
+        card.partOfSpeech == .noun || card.gender != .none
     }
 
     private func matchesTranslation(_ card: GermanWordData, normalized: String) -> Bool {

@@ -5,6 +5,7 @@ enum WordLookupError: LocalizedError {
     case invalidURL
     case emptyResponse
     case decodingFailed
+    case invalidAdditionalRequestBody
     case invalidWordSuggestion(String?)
 
     var errorDescription: String? {
@@ -17,6 +18,8 @@ enum WordLookupError: LocalizedError {
             return "LLM 沒有返回內容。"
         case .decodingFailed:
             return "無法解析 LLM 返回的卡片 JSON。"
+        case .invalidAdditionalRequestBody:
+            return "額外請求內容必須是有效的 JSON object。"
         case .invalidWordSuggestion(let suggestion):
             if let suggestion, !suggestion.isEmpty {
                 return "這看起來不像有效德語詞。你是不是想查：\(suggestion)？"
@@ -56,7 +59,10 @@ final class LLMWordClient {
             temperature: 0.1,
             response_format: ResponseFormat(type: "json_object")
         )
-        request.httpBody = try JSONEncoder().encode(body)
+        request.httpBody = try mergedRequestBody(
+            body,
+            additionalRequestBody: configuration.additionalRequestBody
+        )
 
         let (data, _) = try await URLSession.shared.data(for: request)
         let envelope = try JSONDecoder().decode(ChatCompletionResponse.self, from: data)
@@ -95,6 +101,29 @@ final class LLMWordClient {
             throw WordLookupError.invalidURL
         }
         return url
+    }
+
+    private func mergedRequestBody(
+        _ request: ChatCompletionRequest,
+        additionalRequestBody: String
+    ) throws -> Data {
+        let encodedRequest = try JSONEncoder().encode(request)
+        guard var requestObject = try JSONSerialization.jsonObject(with: encodedRequest) as? [String: Any] else {
+            throw WordLookupError.decodingFailed
+        }
+
+        let trimmedAdditionalBody = additionalRequestBody.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedAdditionalBody.isEmpty else { return encodedRequest }
+        guard
+            let additionalData = trimmedAdditionalBody.data(using: .utf8),
+            let additionalObject = try? JSONSerialization.jsonObject(with: additionalData) as? [String: Any]
+        else {
+            throw WordLookupError.invalidAdditionalRequestBody
+        }
+
+        // Provider-specific values intentionally override the app defaults.
+        requestObject.merge(additionalObject) { _, providerValue in providerValue }
+        return try JSONSerialization.data(withJSONObject: requestObject)
     }
 
     private func decodeWordData(from rawText: String, fallbackWord: String) throws -> GermanWordData {
@@ -165,6 +194,8 @@ final class LLMWordClient {
         exampleSentence, exampleTranslation, referenceSource, notes [string],
         isValidGermanWord, suggestedWord, confidence.
 
+        partOfSpeech must be exactly one of: "noun", "verb", "adjective", "adverb", "pronoun", "preposition", "conjunction", "interjection", "numeral", "other". Use the English lowercase value regardless of the input language.
+
         For German input, first validate the user's exact input. If the input is already a valid dictionary headword, return that headword and do not redirect it to another lemma merely because the same spelling can also be an inflected form. German nouns may be typed lowercase; for example input "sonne" should be treated as the noun "Sonne" (die Sonne) unless the user explicitly asks for the verb "sonnen".
         Inflected German forms are valid: plural nouns, declined nouns/adjectives, and conjugated verbs must set isValidGermanWord=true and return the dictionary lemma in word only when the input is not itself a more common headword. For example, input "Augen" should return word "Auge", gender "das", and pluralForm "Augen".
 
@@ -191,7 +222,7 @@ private struct LLMWordPayload: Decodable {
     let word: String?
     let meaning: String?
     let englishMeaning: String?
-    let partOfSpeech: String?
+    let partOfSpeech: PartOfSpeech?
     let gender: String?
     let pluralForm: String?
     let declensionTable: [DeclensionRow]?
@@ -210,7 +241,7 @@ private struct LLMWordPayload: Decodable {
             word: word ?? "",
             meaning: meaning ?? "-",
             englishMeaning: englishMeaning,
-            partOfSpeech: partOfSpeech ?? "-",
+            partOfSpeech: partOfSpeech ?? .other,
             gender: GrammaticalGender(rawValue: gender ?? "none") ?? .none,
             pluralForm: pluralForm ?? "-",
             declensionTable: declensionTable ?? [],

@@ -28,7 +28,7 @@ struct CardLibraryView: View {
                 card.word,
                 card.meaning,
                 card.englishMeaning ?? "",
-                card.partOfSpeech,
+                card.partOfSpeech.label,
                 card.pluralForm,
             ].contains { value in
                 value.localizedCaseInsensitiveContains(term)
@@ -118,7 +118,7 @@ private struct CardLibraryRow: View {
                     .font(.headline)
                     .foregroundStyle(AppTheme.primaryText)
                 Spacer()
-                Text(card.partOfSpeech)
+                Text(card.partOfSpeech.label)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(card.gender.tint)
             }
@@ -145,7 +145,7 @@ private struct CardEditView: View {
     @State private var word: String
     @State private var meaning: String
     @State private var englishMeaning: String
-    @State private var partOfSpeech: String
+    @State private var partOfSpeech: PartOfSpeech
     @State private var gender: GrammaticalGender
     @State private var pluralForm: String
     @State private var exampleSentence: String
@@ -176,7 +176,11 @@ private struct CardEditView: View {
                         .germanCardsAutocapitalization(.words)
                     TextField("Meaning", text: $meaning, axis: .vertical)
                     TextField("English", text: $englishMeaning)
-                    TextField("Part of speech", text: $partOfSpeech)
+                    Picker("Part of speech", selection: $partOfSpeech) {
+                        ForEach(PartOfSpeech.allCases) { option in
+                            Text(option.label).tag(option)
+                        }
+                    }
                     Picker("Gender", selection: $gender) {
                         ForEach(GrammaticalGender.allCases, id: \.self) { option in
                             Text(option.label).tag(option)
@@ -214,7 +218,7 @@ private struct CardEditView: View {
             word: word.trimmingCharacters(in: .whitespacesAndNewlines),
             meaning: meaning.trimmingCharacters(in: .whitespacesAndNewlines),
             englishMeaning: englishMeaning.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
-            partOfSpeech: partOfSpeech.trimmingCharacters(in: .whitespacesAndNewlines),
+            partOfSpeech: partOfSpeech,
             gender: gender,
             pluralForm: pluralForm.trimmingCharacters(in: .whitespacesAndNewlines),
             declensionTable: card.declensionTable,

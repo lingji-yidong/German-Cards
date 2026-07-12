@@ -6,6 +6,7 @@ struct SearchView: View {
     @AppStorage("llm_base_url") private var baseURL = LLMProvider.openAICompatible.defaultBaseURL
     @AppStorage("llm_model") private var model = LLMProvider.openAICompatible.defaultModel
     @AppStorage("llm_api_key") private var apiKey = ""
+    @AppStorage("llm_additional_request_body") private var additionalRequestBody = ""
 
     @State private var query = ""
     @State private var selectedWord: GermanWordData?
@@ -224,7 +225,13 @@ struct SearchView: View {
 
         do {
             let provider = LLMProvider(rawValue: providerRaw) ?? .openAICompatible
-            let config = LLMConfiguration(provider: provider, baseURL: baseURL, model: model, apiKey: apiKey)
+            let config = LLMConfiguration(
+                provider: provider,
+                baseURL: baseURL,
+                model: model,
+                apiKey: apiKey,
+                additionalRequestBody: additionalRequestBody
+            )
             let result = try await client.fetchWordInfo(word: term, configuration: config)
             guard result.isProbablyValid else {
                 suggestion = WordSuggestion(originalWord: term, suggestedWord: result.suggestedWord, confidence: result.confidence)
