@@ -17,5 +17,8 @@ struct GermanCardsApp: App {
         WindowGroup {
             ContentView()
         }
+        #if os(macOS)
+        .defaultSize(width: 680, height: 820)
+        #endif
     }
 }

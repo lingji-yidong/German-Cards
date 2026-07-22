@@ -1,7 +1,7 @@
 # GermanCards
 
 <p align="center">
-  <img src="Assets.xcassets/AppIcon.appiconset/AppIcon-Mac-512@2x.png" alt="GermanCards icon" width="96" height="96">
+  <img src="Assets.xcassets/AppIconMacLight.appiconset/AppIcon-Mac-Light-512@2x.png" alt="GermanCards icon" width="96" height="96">
 </p>
 
 A SwiftUI vocabulary and grammar reference app for German learners. GermanCards keeps a personal word-card library on device, supports spoken German pronunciation through the system speech synthesizer, and runs on iPhone, iPad, and native macOS.
