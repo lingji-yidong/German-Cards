@@ -9,6 +9,10 @@ import SwiftUI
 
 @main
 struct GermanCardsApp: App {
+    #if os(macOS)
+    @NSApplicationDelegateAdaptor(AppIconAppearanceController.self) private var appIconController
+    #endif
+
     var body: some Scene {
         WindowGroup {
             ContentView()

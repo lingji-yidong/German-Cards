@@ -4,7 +4,7 @@
   <img src="Assets.xcassets/AppIcon.appiconset/AppIcon-Mac-512@2x.png" alt="GermanCards icon" width="96" height="96">
 </p>
 
-A SwiftUI vocabulary and grammar reference app for German learners. GermanCards keeps a personal word-card library on device, supports spoken German pronunciation through the system speech synthesizer, and runs on iPhone, iPad, and macOS through Mac Catalyst.
+A SwiftUI vocabulary and grammar reference app for German learners. GermanCards keeps a personal word-card library on device, supports spoken German pronunciation through the system speech synthesizer, and runs on iPhone, iPad, and native macOS.
 
 ## Preview
 
@@ -18,7 +18,7 @@ A SwiftUI vocabulary and grammar reference app for German learners. GermanCards 
   </tr>
   <tr>
     <td align="center">
-      <strong>macOS / Mac Catalyst</strong><br>
+      <strong>macOS</strong><br>
       <img src="docs/images/demo_desktop.png" alt="GermanCards macOS demo" width="520">
     </td>
   </tr>
@@ -38,12 +38,12 @@ A SwiftUI vocabulary and grammar reference app for German learners. GermanCards 
 GermanCards supports:
 
 - iPhone and iPad on iOS/iPadOS 18 or later
-- macOS 15 or later as a Mac Catalyst app
+- macOS 15 or later as a native macOS app
 - Apple silicon and Intel Macs through the GitHub Actions universal macOS package
 
 ## macOS Builds
 
-The GitHub Actions workflow builds a universal Mac Catalyst app with both `arm64` and `x86_64` slices. Each run uploads an artifact named `GermanCards-macOS-universal` containing:
+The GitHub Actions workflow builds a universal native macOS app with both `arm64` and `x86_64` slices. Each run uploads an artifact named `GermanCards-macOS-universal` containing:
 
 - `GermanCards-macOS-universal.pkg` - installer package for `/Applications`
 - `GermanCards-macOS-universal.dmg` - drag-and-drop disk image
@@ -93,14 +93,14 @@ xcodebuild \
   build
 ```
 
-Build a universal Mac Catalyst app locally:
+Build a universal native macOS app locally:
 
 ```bash
 xcodebuild \
   -project GermanCards.xcodeproj \
   -scheme GermanCards \
   -configuration Release \
-  -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+  -destination 'generic/platform=macOS' \
   ARCHS='arm64 x86_64' \
   ONLY_ACTIVE_ARCH=NO \
   CODE_SIGNING_ALLOWED=NO \
@@ -109,7 +109,7 @@ xcodebuild \
 
 ## App Icon
 
-The primary app icon is managed through `Assets.xcassets/AppIcon.appiconset`. The restored dark Mac icon keeps its rounded transparent silhouette, and `Assets.xcassets/AppIconMacLight.appiconset` contains a matching light Mac variant at every required size. The Xcode project explicitly sets `CFBundleIconName` to `AppIcon` and enables standalone icon generation so Mac Catalyst builds include the icon assets expected by macOS.
+The primary app icon is managed through `Assets.xcassets/AppIcon.appiconset`. The restored dark Mac icon keeps its rounded transparent silhouette, and `Assets.xcassets/AppIconMacLight.appiconset` contains a matching light Mac variant at every required size. The native macOS app updates its Dock icon when the effective system appearance changes.
 
 ## Signing
 

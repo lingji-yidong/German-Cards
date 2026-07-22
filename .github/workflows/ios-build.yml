@@ -24,7 +24,7 @@ jobs:
             result_bundle: GermanCards-iOS.xcresult
             package_ios: true
           - destination_name: Universal Mac
-            destination: generic/platform=macOS,variant=Mac Catalyst
+            destination: generic/platform=macOS
             configuration: Release
             result_bundle: GermanCards-UniversalMac.xcresult
             package_desktop: true
@@ -75,7 +75,7 @@ jobs:
         if: matrix.package_desktop == true
         run: |
           set -euo pipefail
-          APP_PATH="$RUNNER_TEMP/GermanCardsDerivedData/Build/Products/${{ matrix.configuration }}-maccatalyst/GermanCards.app"
+          APP_PATH="$RUNNER_TEMP/GermanCardsDerivedData/Build/Products/${{ matrix.configuration }}/GermanCards.app"
           ARTIFACT_DIR="$RUNNER_TEMP/artifacts"
           STAGING_DIR="$RUNNER_TEMP/pkg-root"
           DMG_DIR="$RUNNER_TEMP/dmg-root"
@@ -97,7 +97,7 @@ jobs:
           pkgbuild \
             --root "$STAGING_DIR" \
             --identifier "uk.habseligkeiten.GermanCards" \
-            --version "1.0.7" \
+            --version "1.0.8" \
             --install-location "/" \
             "$COMPONENT_PKG"
 

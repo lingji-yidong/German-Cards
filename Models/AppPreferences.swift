@@ -70,7 +70,7 @@ enum AppTheme {
     static let background = Color(nsColor: .windowBackgroundColor)
     static let surface = Color(nsColor: .controlBackgroundColor)
     static let elevatedSurface = Color(nsColor: .textBackgroundColor)
-    static let softSurface = Color(nsColor: .underPageBackgroundColor)
+    static let softSurface = Color(nsColor: .windowBackgroundColor)
     static let primaryText = Color(nsColor: .labelColor)
     static let secondaryText = Color(nsColor: .secondaryLabelColor)
     static let separator = Color(nsColor: .separatorColor).opacity(0.45)
